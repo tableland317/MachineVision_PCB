@@ -89,14 +89,17 @@ namespace MachineVision_PCB
             //속성창 추가
             var propWindow = new PropertiesForm();
             propWindow.Show(_dockPanel, DockState.DockRight);
-
-            //AI 검사창 추가 - 속성창 오른쪽에 배치
-            var aiWindow = new AIForm();
-            aiWindow.Show(propWindow.Pane, DockAlignment.Right, 0.3);
+            _dockPanel.DockRightPortion = 0.4;
 
             //#14_LOGFORM#2 로그창 추가
             var logWindow = new LogForm();
             logWindow.Show(propWindow.Pane, DockAlignment.Bottom, 0.3);
+
+            //AI 검사창 추가 - 속성창 오른쪽에 배치
+            var aiWindow = new AIForm();
+            aiWindow.Show(propWindow.Pane, DockAlignment.Right, 0.45);
+
+
         }
         private void LoadSetting()
         {

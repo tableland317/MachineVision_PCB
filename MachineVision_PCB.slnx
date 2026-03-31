@@ -3,7 +3,7 @@
     <Platform Name="Any CPU" />
     <Platform Name="x64" />
   </Configurations>
-  <Project Path="MachineVision_PCB.csproj">
+  <Project Path="MachineVision_PCB.csproj" Id="bf8dcea6-b946-4af3-892d-fd35c0994169">
     <Platform Solution="*|x64" Project="x64" />
   </Project>
 </Solution>
