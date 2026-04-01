@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -54,68 +55,72 @@ namespace MachineVision_PCB
             };
             _treeListView.SelectionChanged += TreeListView_SelectionChanged;
 
-            _treeListView.CanExpandGetter = x => true;
+            // AIClassRecord(클래스)만 확장 가능, AIImageEntry/InspWindow는 리프 노드
+            _treeListView.CanExpandGetter = x => x is AIClassRecord || x is InspWindow;
 
             _treeListView.ChildrenGetter = x =>
             {
-                if (x is InspWindow w)
-                    return w.InspResultList;
-                return new List<InspResult>();
+                if (x is AIClassRecord cls) return cls.ImageEntries;
+                if (x is InspWindow w)      return w.InspResultList;
+                return new List<object>();
             };
 
-            //컬럼 추가
-            var colUID = new OLVColumn("UID", "")
+            // 컬럼: 클래스명 / 파일명
+            var colUID = new OLVColumn("클래스 / 파일명", "")
             {
-                Width = 100,
+                Width = 180,
                 IsEditable = false,
                 AspectGetter = obj =>
                 {
-                    if (obj is InspWindow win)
-                        return win.UID;
-                    if (obj is InspResult res)
-                        return res.InspType.ToString();
+                    if (obj is AIClassRecord cls)  return cls.ClassName;
+                    if (obj is AIImageEntry entry) return entry.FileName;
+                    if (obj is InspWindow win)     return win.UID;
+                    if (obj is InspResult res)     return res.InspType == Core.InspectType.InspAIModule
+                                                          ? res.ObjectID
+                                                          : res.InspType.ToString();
                     return "";
                 }
             };
 
-            var colAlgo = new OLVColumn("Algorithm", "")
+            var colStatus = new OLVColumn("판정", "")
             {
-                Width = 150,
+                Width = 60,
+                TextAlign = HorizontalAlignment.Center,
+                AspectGetter = obj =>
+                {
+                    if (obj is AIClassRecord cls)  return cls.IsDefect ? "NG" : "OK";
+                    if (obj is AIImageEntry entry) return entry.IsDefect ? "NG" : "OK";
+                    if (obj is InspResult res)     return res.IsDefect ? "NG" : "OK";
+                    return "";
+                }
+            };
+
+            var colValue = new OLVColumn("검출 수", "")
+            {
+                Width = 70,
+                TextAlign = HorizontalAlignment.Center,
+                AspectGetter = obj =>
+                {
+                    if (obj is AIClassRecord cls)  return cls.TotalCount.ToString();
+                    if (obj is AIImageEntry entry) return entry.Count.ToString();
+                    if (obj is InspResult res)     return res.ResultValue;
+                    return "";
+                }
+            };
+
+            var colPath = new OLVColumn("경로", "")
+            {
+                Width = 250,
                 IsEditable = false,
                 AspectGetter = obj =>
                 {
-                    if (obj is InspResult res)
-                        return res.InspType.ToString();
-                    return "";
-                }
-            };
-
-            var colStatus = new OLVColumn("Status", "IsDefect")
-            {
-                Width = 80,
-                TextAlign = HorizontalAlignment.Center,
-                AspectGetter = obj =>
-                {
-                    if (obj is InspResult res)
-                        return res.IsDefect ? "NG" : "OK";
-                    return "";
-                }
-            };
-
-            var colValue = new OLVColumn("Result", "Result")
-            {
-                Width = 80,
-                TextAlign = HorizontalAlignment.Center,
-                AspectGetter = obj =>
-                {
-                    if (obj is InspResult res)
-                        return res.ResultValue;
+                    if (obj is AIImageEntry entry) return entry.ImagePath;
                     return "";
                 }
             };
 
             // 컬럼 추가
-            _treeListView.Columns.AddRange(new OLVColumn[] { colUID, colAlgo, colStatus, colValue });
+            _treeListView.Columns.AddRange(new OLVColumn[] { colUID, colStatus, colValue, colPath });
 
 
             // 검사 상세 정보 텍스트박스 생성
@@ -162,6 +167,30 @@ namespace MachineVision_PCB
             }
         }
 
+        // AI 누적 검사 결과를 클래스(Crack/Scratch) 단위로 ResultForm에 표시
+        public void ShowAIRecords(List<AIClassRecord> classRecords)
+        {
+            _treeListView.ClearObjects();
+
+            if (classRecords == null || classRecords.Count == 0)
+            {
+                _txtDetails.Text = "검사 결과가 없습니다.";
+                return;
+            }
+
+            _treeListView.SetObjects(classRecords);
+
+            // 모든 클래스 노드 펼치기
+            foreach (var cls in classRecords)
+                _treeListView.Expand(cls);
+
+            // 요약 텍스트
+            _txtDetails.Text = "[AI 검사 결과]\r\n" +
+                string.Join("\r\n", classRecords.Select(c =>
+                    $"  [{c.ClassName}] 총 {c.ImageEntries.Count}장, 검출 합계: {c.TotalCount}개 " +
+                    $"({(c.IsDefect ? "NG" : "OK")})"));
+        }
+
         //실제 검사가 되었을때, 검사 결과를 추가하는 함수
         public void AddInspResult(InspResult inspResult)
         {
@@ -192,7 +221,17 @@ namespace MachineVision_PCB
                 return;
             }
 
-            if (_treeListView.SelectedObject is InspResult result)
+            if (_treeListView.SelectedObject is AIClassRecord cls)
+            {
+                _txtDetails.Text = $"[{cls.ClassName}]  총 {cls.ImageEntries.Count}장  검출 합계: {cls.TotalCount}개\r\n" +
+                    string.Join("\r\n", cls.ImageEntries.Select(x =>
+                        $"  {x.FileName}: {x.Count}개 ({(x.IsDefect ? "NG" : "OK")})"));
+            }
+            else if (_treeListView.SelectedObject is AIImageEntry entry)
+            {
+                _txtDetails.Text = $"{entry.ImagePath}\r\n검출 수: {entry.Count}개  판정: {(entry.IsDefect ? "NG" : "OK")}";
+            }
+            else if (_treeListView.SelectedObject is InspResult result)
             {
                 ShowDedtail(result);
             }

@@ -520,11 +520,11 @@ namespace MachineVision_PCB.UIControl
                     string infoText = rectInfo.info;
                     PointF textPos = new PointF(screenRect.Left, screenRect.Top); // 위로 약간 띄우기
 
-                    //if (rectInfo.inspectType == InspectType.InspBinary
-                    //    && rectInfo.decision != DecisionType.Info)
-                    //{
-                    //    textPos.Y = screenRect.Bottom - fontSize;
-                    //}
+                    if (rectInfo.inspectType == InspectType.InspBinary
+                        && rectInfo.decision != DecisionType.Info)
+                    {
+                        textPos.Y = screenRect.Bottom - fontSize;
+                    }
 
                     DrawText(g, infoText, textPos, fontSize, lineColor);
                 }

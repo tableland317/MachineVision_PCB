@@ -66,7 +66,6 @@ namespace MachineVision_PCB.Algorithm
         public BlobFilter() { }
     }
 
-
     public class BlobAlgorithm : InspAlgorithm
     {
         public BinaryThreshold BinThreshold { get; set; } = new BinaryThreshold();
@@ -134,7 +133,6 @@ namespace MachineVision_PCB.Algorithm
 
             return true;
         }
-
 
         //BlobAlgorithm 생성시, 기본 필터 설정
         public void SetDefault()

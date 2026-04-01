@@ -308,6 +308,74 @@ namespace MachineVision_PCB
             return resultImage;
         }
 
+        // 검사 결과를 클래스명별로 묶어 InspResult 리스트로 반환
+        public List<Inspect.InspResult> GetAIInspResults()
+        {
+            var results = new List<Inspect.InspResult>();
+
+            SegmentedObject[] segObjects = null;
+
+            switch (_engineType)
+            {
+                case AIEngineType.AnomalyDetection:
+                    if (_iADResult == null) return results;
+                    segObjects = _iADResult.SegmentedObjects;
+                    break;
+                case AIEngineType.Segmentation:
+                    if (_segResult == null) return results;
+                    segObjects = _segResult.SegmentedObjects;
+                    break;
+                case AIEngineType.Detection:
+                    if (_detResult == null) return results;
+                    // Detection은 DetectedObject 기준으로 처리
+                    var detGroups = _detResult.DetectedObjects
+                        .GroupBy(o => o.ClassInfo.Name);
+                    foreach (var group in detGroups)
+                    {
+                        string className = group.Key;
+                        int count = group.Count();
+                        string details = string.Join("\r\n", group.Select((o, i) =>
+                            $"  [{i + 1}] Score:{o.Score:F2}  " +
+                            $"Rect:({o.BoundingBox.X},{o.BoundingBox.Y},{o.BoundingBox.Width},{o.BoundingBox.Height})"));
+
+                        var result = new Inspect.InspResult
+                        {
+                            ObjectID  = className,
+                            InspType  = Core.InspectType.InspAIModule,
+                            IsDefect  = count > 0,
+                            ResultValue  = count.ToString(),
+                            ResultInfos  = $"[{className}] 검출 수: {count}\r\n{details}"
+                        };
+                        results.Add(result);
+                    }
+                    return results;
+            }
+
+            if (segObjects == null) return results;
+
+            // IAD / Segmentation 공통 처리 (클래스명 기준 그룹핑)
+            var groups = segObjects.GroupBy(o => o.ClassInfo.Name);
+            foreach (var group in groups)
+            {
+                string className = group.Key;
+                int count = group.Count();
+                string details = string.Join("\r\n", group.Select((o, i) =>
+                    $"  [{i + 1}] Score:{o.Score:F2}  Area:{o.Area}"));
+
+                var result = new Inspect.InspResult
+                {
+                    ObjectID    = className,
+                    InspType    = Core.InspectType.InspAIModule,
+                    IsDefect    = count > 0,
+                    ResultValue = count.ToString(),
+                    ResultInfos = $"[{className}] 검출 수: {count}\r\n{details}"
+                };
+                results.Add(result);
+            }
+
+            return results;
+        }
+
         private void DisposeMode()
         {
             //GPU에 여러개 모델을 넣을 경우, 메모리가 부족할 수 있으므로, 해제

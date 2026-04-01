@@ -1,5 +1,7 @@
 using MachineVision_PCB.Core;
+using MachineVision_PCB.Inspect;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -12,6 +14,9 @@ namespace MachineVision_PCB
         private SaigeAI _saigeAI;
         private string _modelPath = string.Empty;
         private AIEngineType _engineType;
+
+        // 클래스(Crack/Scratch)별 누적 검사 결과
+        private readonly List<AIClassRecord> _classRecords = new List<AIClassRecord>();
 
         public AIForm()
         {
@@ -128,7 +133,46 @@ namespace MachineVision_PCB
                 Global.Inst.InspStage.UpdateDisplay(resultImage);
             }
 
-            AppendLog($"[{DateTime.Now:HH:mm:ss}] AI 검사 완료");
+            // 현재 이미지 경로 기준으로 클래스별 결과 누적
+            string imagePath = Global.Inst.InspStage.CurModel?.InspectImagePath ?? "";
+            var aiResults = _saigeAI.GetAIInspResults();
+
+            foreach (var _result in aiResults)
+            {
+                string className = _result.ObjectID; // Crack / Scratch 등
+                int.TryParse(_result.ResultValue, out int count);
+
+                // 해당 클래스 레코드 찾거나 새로 생성
+                var classRec = _classRecords.FirstOrDefault(c => c.ClassName == className);
+                if (classRec == null)
+                {
+                    classRec = new AIClassRecord { ClassName = className };
+                    _classRecords.Add(classRec);
+                }
+
+                // 같은 이미지 경로가 이미 있으면 덮어쓰기, 없으면 추가
+                var imgEntry = classRec.ImageEntries.FirstOrDefault(x => x.ImagePath == imagePath);
+                if (imgEntry != null)
+                {
+                    imgEntry.Count = count;
+                }
+                else
+                {
+                    classRec.ImageEntries.Add(new AIImageEntry { ImagePath = imagePath, Count = count });
+                }
+            }
+
+            // ResultForm에 누적 결과 전달
+            ResultForm resultForm = MainForm.GetDockForm<ResultForm>();
+            resultForm?.ShowAIRecords(_classRecords);
+
+            bool isDefect = aiResults.Any(r => r.IsDefect);
+            lblStatusValue.Text = isDefect ? "NG" : "OK";
+            lblStatusValue.ForeColor = isDefect ? Color.Red : Color.Green;
+
+            AppendLog($"[{DateTime.Now:HH:mm:ss}] AI 검사 완료 → {(isDefect ? "NG" : "OK")} " +
+                      $"({string.Join(", ", aiResults.Select(r => $"{r.ObjectID}:{r.ResultValue}개"))})");
+
         }
 
         private void btnClear_Click(object sender, EventArgs e)
@@ -136,6 +180,10 @@ namespace MachineVision_PCB
             Image prev = pbResult.Image;
             pbResult.Image = null;
             prev?.Dispose();
+
+            _classRecords.Clear();
+            ResultForm resultForm = MainForm.GetDockForm<ResultForm>();
+            resultForm?.ShowAIRecords(_classRecords);
 
             rtbLog.Clear();
             lblStatusValue.Text = "대기";

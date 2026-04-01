@@ -10,7 +10,7 @@ namespace MachineVision_PCB.Core
     public enum InspectType
     {
         InspNone = -1,
-        //InspBinary,
+        InspBinary,
         InspMatch,
         InspFilter,
         InspAIModule,

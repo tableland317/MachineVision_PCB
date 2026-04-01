@@ -52,7 +52,7 @@ namespace MachineVision_PCB
             Controls.Add(_dockPanel);
 
             // Visual Studio 2015 테마 적용
-            _dockPanel.Theme = new VS2015BlueTheme();
+            _dockPanel.Theme = new VS2015DarkTheme();
 
             //#2_DOCKPANEL#6 도킹 윈도우 로드 메서드 호출
             LoadDockingWindows();
@@ -158,6 +158,11 @@ namespace MachineVision_PCB
             if (keyData == Keys.Right)
             {
                 Global.Inst.InspStage.MoveNextImage();
+                return true;
+            }
+            if (keyData == (Keys.Control | Keys.O))
+            {
+                imageOpenToolStripMenuItem_Click(this, EventArgs.Empty);
                 return true;
             }
             return base.ProcessCmdKey(ref msg, keyData);

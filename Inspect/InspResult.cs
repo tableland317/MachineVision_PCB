@@ -3,6 +3,7 @@ using MachineVision_PCB.Core;
 using MachineVision_PCB.Teach;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,33 @@ namespace MachineVision_PCB.Inspect
          2개 컨트롤을 상하로 분리하는 SplitContainer 추가    
    5) #13_INSP_RESULT#1 ~
    */
+
+    // 이미지 경로 단위로 AI 검사 결과를 누적 저장하는 클래스
+    public class AIInspRecord
+    {
+        public string ImagePath { get; set; }
+        public List<InspResult> Results { get; set; } = new List<InspResult>();
+        public bool IsDefect => Results.Any(r => r.IsDefect);
+        public string FileName => Path.GetFileName(ImagePath);
+    }
+
+    // 클래스(Crack/Scratch) 단위 누적 레코드 — 루트 노드
+    public class AIClassRecord
+    {
+        public string ClassName { get; set; }
+        public List<AIImageEntry> ImageEntries { get; set; } = new List<AIImageEntry>();
+        public bool IsDefect => ImageEntries.Any(e => e.IsDefect);
+        public int TotalCount => ImageEntries.Sum(e => e.Count);
+    }
+
+    // 클래스 아래 이미지별 엔트리 — 리프 노드
+    public class AIImageEntry
+    {
+        public string ImagePath { get; set; }
+        public string FileName => Path.GetFileName(ImagePath);
+        public int Count { get; set; }
+        public bool IsDefect => Count > 0;
+    }
 
     //검사 결과를 저장하기 위한 클래스
     public class InspResult
