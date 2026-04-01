@@ -716,8 +716,8 @@ namespace MachineVision_PCB.Core
                 if (!Directory.Exists(inspImageDir))
                     return;
 
-                if (!_imageLoader.IsLoadedImages())
-                    _imageLoader.LoadImages(inspImageDir);
+                _imageLoader.LoadImages(inspImageDir);
+                _imageLoader.SetStartImage(inspImagePath);
             }
 
             if (isCycle)
@@ -896,7 +896,7 @@ namespace MachineVision_PCB.Core
             }
 
             LiveMode = false;
-            UseCamera = SettingXml.Inst.CamType != CameraType.HikRobotCam ? true : false;
+            UseCamera = SettingXml.Inst.CamType != CameraType.None ? true : false;
 
             SetWorkingState(WorkingState.INSPECT);
 

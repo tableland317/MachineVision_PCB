@@ -54,13 +54,13 @@ namespace MachineVision_PCB.Inspect
                         MatchAlgorithm matchAlgo = algo as MatchAlgorithm;
                         inspResult.ResultValue = $"{matchAlgo.OutScore}";
                         break;
-                    case InspectType.InspBinary:
-                        BlobAlgorithm blobAlgo = algo as BlobAlgorithm;
-                        int min = blobAlgo.BlobFilters[blobAlgo.FILTER_COUNT].min;
-                        int max = blobAlgo.BlobFilters[blobAlgo.FILTER_COUNT].max;
+                    //case InspectType.InspBinary:
+                    //    BlobAlgorithm blobAlgo = algo as BlobAlgorithm;
+                    //    int min = blobAlgo.BlobFilters[blobAlgo.FILTER_COUNT].min;
+                    //    int max = blobAlgo.BlobFilters[blobAlgo.FILTER_COUNT].max;
 
-                        inspResult.ResultValue = $"{blobAlgo.OutBlobCount}/{min}~{max}";
-                        break;
+                    //    inspResult.ResultValue = $"{blobAlgo.OutBlobCount}/{min}~{max}";
+                    //    break;
                 }
 
                 List<DrawInspectInfo> resultArea = new List<DrawInspectInfo>();

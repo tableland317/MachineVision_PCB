@@ -47,6 +47,16 @@ namespace MachineVision_PCB.Util
             return true;
         }
 
+        // 지정한 이미지 경로부터 순환 시작 (없으면 처음부터)
+        public void SetStartImage(string imagePath)
+        {
+            if (_sortedImages is null)
+                return;
+
+            int idx = _sortedImages.IndexOf(imagePath);
+            _grabIndex = (idx >= 0) ? idx - 1 : -1;
+        }
+
         public string GetImagePath()
         {
             if (_sortedImages is null)

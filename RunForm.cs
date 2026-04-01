@@ -35,7 +35,7 @@ namespace MachineVision_PCB
             string serialID = $"{DateTime.Now:MM-dd HH:mm:ss}";
             Global.Inst.InspStage.InspectReady("LOT_NUMBER", serialID);
 
-            if (SettingXml.Inst.CamType == Grab.CameraType.HikRobotCam)
+            if (SettingXml.Inst.CamType == Grab.CameraType.None)
             {
                 bool cycleMode = SettingXml.Inst.CycleMode;
                 Global.Inst.InspStage.CycleInspect(cycleMode);

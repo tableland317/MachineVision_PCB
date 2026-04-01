@@ -1,0 +1,10 @@
+오전 10:33 2026-03-17
+
+Pattern Matching
+밝기를 비교
+
+모자들 사진이 100x100이고 모자가 30x30일때
+왜 result가 70x70이 될까
+
+이미지와 roi
+virtual to screen?

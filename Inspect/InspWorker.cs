@@ -59,7 +59,7 @@ namespace MachineVision_PCB.Inspect
             {
                 Global.Inst.InspStage.OneCycle();
 
-                Thread.Sleep(200); // 주기 설정
+                Thread.Sleep(1000); // 주기 설정
             }
 
             IsRunning = false;

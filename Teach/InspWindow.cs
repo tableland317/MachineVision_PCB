@@ -156,9 +156,9 @@ namespace MachineVision_PCB.Teach
 
             switch (inspType)
             {
-                case InspectType.InspBinary:
-                    inspAlgo = new BlobAlgorithm();
-                    break;
+                //case InspectType.InspBinary:
+                //    inspAlgo = new BlobAlgorithm();
+                //    break;
 
                 //#11_MATCHING#3 패턴매칭 알고리즘 추가
                 case InspectType.InspMatch:

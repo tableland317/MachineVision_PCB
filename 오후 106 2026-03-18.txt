@@ -1,0 +1,8 @@
+오후 1:06 2026-03-18
+
+Math함수
+Message박스
+
+숙제
+InspAlgorighm을 상속받는
+DeepLearning 알고리즘을 하나 만들어서 추가해보기

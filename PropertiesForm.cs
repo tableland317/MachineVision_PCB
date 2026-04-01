@@ -73,16 +73,16 @@ namespace MachineVision_PCB
             UserControl curProp = null;
             switch (inspPropType)
             {
-                case InspectType.InspBinary:
-                    BinaryProp blobProp = new BinaryProp();
+                //case InspectType.InspBinary:
+                //    BinaryProp blobProp = new BinaryProp();
 
-                    //#7_BINARY_PREVIEW#8 이진화 속성 변경시 발생하는 이벤트 추가
-                    blobProp.RangeChanged += RangeSlider_RangeChanged;
+                //    //#7_BINARY_PREVIEW#8 이진화 속성 변경시 발생하는 이벤트 추가
+                //    blobProp.RangeChanged += RangeSlider_RangeChanged;
 
-                    //#18_IMAGE_CHANNEL#13 이미지 채널 변경시 이벤트 추가
-                    blobProp.ImageChannelChanged += ImageChannelChanged;
-                    curProp = blobProp;
-                    break;
+                //    //#18_IMAGE_CHANNEL#13 이미지 채널 변경시 이벤트 추가
+                //    blobProp.ImageChannelChanged += ImageChannelChanged;
+                //    curProp = blobProp;
+                //    break;
                 //#11_MATCHING#5 패턴매칭 속성창 추가
                 case InspectType.InspMatch:
                     MatchInspProp matchProp = new MatchInspProp();
@@ -128,15 +128,16 @@ namespace MachineVision_PCB
                 {
                     UserControl uc = tabPage.Controls[0] as UserControl;
 
-                    if (uc is BinaryProp binaryProp)
-                    {
-                        BlobAlgorithm blobAlgo = (BlobAlgorithm)window.FindInspAlgorithm(InspectType.InspBinary);
-                        if (blobAlgo is null)
-                            continue;
+                    //if (uc is BinaryProp binaryProp)
+                    //{
+                    //    BlobAlgorithm blobAlgo = (BlobAlgorithm)window.FindInspAlgorithm(InspectType.InspBinary);
+                    //    if (blobAlgo is null)
+                    //        continue;
 
-                        binaryProp.SetAlgorithm(blobAlgo);
-                    }
-                    else if (uc is MatchInspProp matchProp)
+                    //    binaryProp.SetAlgorithm(blobAlgo);
+                    //}
+                    //else
+                    if (uc is MatchInspProp matchProp)
                     {
                         MatchAlgorithm matchAlgo = (MatchAlgorithm)window.FindInspAlgorithm(InspectType.InspMatch);
                         if (matchAlgo is null)
@@ -151,20 +152,20 @@ namespace MachineVision_PCB
         }
 
         //#7_BINARY_PREVIEW#7 이진화 속성 변경시 발생하는 이벤트 구현
-        private void RangeSlider_RangeChanged(object sender, RangeChangedEventArgs e)
-        {
-            // 속성값을 이용하여 이진화 임계값 설정
-            int lowerValue = e.LowerValue;
-            int upperValue = e.UpperValue;
-            bool invert = e.Invert;
-            ShowBinaryMode showBinMode = e.ShowBinMode;
-            Global.Inst.InspStage.PreView?.SetBinary(lowerValue, upperValue, invert, showBinMode);
-        }
+        //private void RangeSlider_RangeChanged(object sender, RangeChangedEventArgs e)
+        //{
+        //    // 속성값을 이용하여 이진화 임계값 설정
+        //    int lowerValue = e.LowerValue;
+        //    int upperValue = e.UpperValue;
+        //    bool invert = e.Invert;
+        //    ShowBinaryMode showBinMode = e.ShowBinMode;
+        //    Global.Inst.InspStage.PreView?.SetBinary(lowerValue, upperValue, invert, showBinMode);
+        //}
 
         //#18_IMAGE_CHANNEL#14 이미지 채널 변경시 프리뷰에 이미지 채널 설정
-        private void ImageChannelChanged(object sender, ImageChannelEventArgs e)
-        {
-            Global.Inst.InspStage.SetPreviewImage(e.Channel);
-        }
+        //private void ImageChannelChanged(object sender, ImageChannelEventArgs e)
+        //{
+        //    Global.Inst.InspStage.SetPreviewImage(e.Channel);
+        //}
     }
 }

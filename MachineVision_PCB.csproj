@@ -97,7 +97,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Algorithm\BlobAlgorithm.cs" />
     <Compile Include="Algorithm\DrawInspectInfo.cs" />
     <Compile Include="Algorithm\InspAlgorithm.cs" />
     <Compile Include="Algorithm\MatchAlgorithm.cs" />
@@ -161,12 +160,6 @@
     </Compile>
     <Compile Include="Property\AIModuleProp.Designer.cs">
       <DependentUpon>AIModuleProp.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Property\BinaryProp.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Property\BinaryProp.Designer.cs">
-      <DependentUpon>BinaryProp.cs</DependentUpon>
     </Compile>
     <Compile Include="Property\ImageFilterProp.cs">
       <SubType>UserControl</SubType>
@@ -285,9 +278,6 @@
     </Compile>
     <EmbeddedResource Include="Property\AIModuleProp.resx">
       <DependentUpon>AIModuleProp.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Property\BinaryProp.resx">
-      <DependentUpon>BinaryProp.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Property\ImageFilterProp.resx">
       <DependentUpon>ImageFilterProp.cs</DependentUpon>
