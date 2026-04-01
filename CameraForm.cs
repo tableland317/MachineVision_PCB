@@ -25,7 +25,7 @@ namespace MachineVision_PCB
     {
         //#18_IMAGE_CHANNEL#3 현재 선택된 이미지 채널을 저장하는 변수
         //_currentImageChannel 변수 모두 찾아서, 관련 코드 수정할것
-        eImageChannel _currentImageChannel = eImageChannel.Gray;
+        eImageChannel _currentImageChannel = eImageChannel.Color;
 
         public CameraForm()
         {
@@ -113,7 +113,13 @@ namespace MachineVision_PCB
             }
 
             if (imageViewer != null)
+            {
                 imageViewer.LoadBitmap(bitmap);
+
+                // 현재 이미지 경로를 우측 하단에 표시
+                string imagePath = Global.Inst.InspStage.CurModel?.InspectImagePath ?? "";
+                imageViewer.SetImagePath(imagePath);
+            }
         }
 
         public void UpdateImageViewer()

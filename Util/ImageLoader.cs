@@ -13,6 +13,7 @@ namespace MachineVision_PCB.Util
         private int _grabIndex = -1;
 
         public bool CyclicMode { get; set; } = true;
+        public string LoadedDirectory { get; private set; } = "";
 
         public ImageLoader() { }
 
@@ -26,6 +27,7 @@ namespace MachineVision_PCB.Util
                 return false;
 
             _grabIndex = -1;
+            LoadedDirectory = imageDir;
 
             return true;
         }
@@ -47,7 +49,7 @@ namespace MachineVision_PCB.Util
             return true;
         }
 
-        // 지정한 이미지 경로부터 순환 시작 (없으면 처음부터)
+        // CycleInspect용 - 다음 GetNextImagePath() 호출 시 해당 이미지 반환 (idx-1 세팅)
         public void SetStartImage(string imagePath)
         {
             if (_sortedImages is null)
@@ -55,6 +57,16 @@ namespace MachineVision_PCB.Util
 
             int idx = _sortedImages.IndexOf(imagePath);
             _grabIndex = (idx >= 0) ? idx - 1 : -1;
+        }
+
+        // Prev/Next 탐색용 - 현재 위치를 idx로 고정하여 Next→idx+1, Prev→idx-1 이동
+        public void SetCurrentImage(string imagePath)
+        {
+            if (_sortedImages is null)
+                return;
+
+            int idx = _sortedImages.IndexOf(imagePath);
+            _grabIndex = (idx >= 0) ? idx : 0;
         }
 
         public string GetImagePath()
@@ -81,6 +93,27 @@ namespace MachineVision_PCB.Util
                 Reset();
 
             return GetImagePath();
+        }
+
+        public string GetPrevImagePath()
+        {
+            if (_sortedImages is null)
+                return "";
+
+            _grabIndex--;
+
+            if (_grabIndex < 0)
+            {
+                if (CyclicMode == false)
+                {
+                    _grabIndex = 0;
+                    return "";
+                }
+
+                _grabIndex = _sortedImages.Count - 1;
+            }
+
+            return _sortedImages[_grabIndex];
         }
 
 

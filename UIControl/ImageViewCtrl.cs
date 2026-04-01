@@ -82,6 +82,15 @@ namespace MachineVision_PCB.UIControl
         //#17_WORKING_STATE#3 작업 상태 변수
         public string WorkingState { get; set; } = "";
 
+        // 현재 이미지 경로
+        private string _imagePath = "";
+
+        public void SetImagePath(string path)
+        {
+            _imagePath = path ?? "";
+            Invalidate();
+        }
+
         //#13_INSP_RESULT#4 검사 양불 판정 갯수를 화면에 표시하기 위한 변수
         private InspectResultCount _inspectResultCount = new InspectResultCount();
 
@@ -429,6 +438,31 @@ namespace MachineVision_PCB.UIControl
                 Color resultColor = Color.FromArgb(255, 255, 255);
                 PointF textPos = new PointF(Width - 80, 10);
                 DrawText(g, resultText, textPos, fontSize, resultColor);
+            }
+
+            // 우측 하단에 현재 이미지 경로 표시
+            if (!string.IsNullOrEmpty(_imagePath))
+            {
+                float pathFontSize = 9.0f;
+                using (Font pathFont = new Font("Arial", pathFontSize, FontStyle.Regular))
+                {
+                    SizeF textSize = g.MeasureString(_imagePath, pathFont);
+                    float margin = 6.0f;
+                    PointF pathPos = new PointF(
+                        Width - textSize.Width - margin,
+                        Height - textSize.Height - margin);
+
+                    // 배경 반투명 박스
+                    RectangleF bgRect = new RectangleF(
+                        pathPos.X - 2, pathPos.Y - 2,
+                        textSize.Width + 4, textSize.Height + 4);
+                    using (SolidBrush bgBrush = new SolidBrush(Color.FromArgb(140, 0, 0, 0)))
+                        g.FillRectangle(bgBrush, bgRect);
+
+                    // 텍스트
+                    using (SolidBrush textBrush = new SolidBrush(Color.White))
+                        g.DrawString(_imagePath, pathFont, textBrush, pathPos);
+                }
             }
         }
         private void DrawRectInfo(Graphics g)

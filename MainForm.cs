@@ -131,7 +131,6 @@ namespace MachineVision_PCB
                     //#13_SET_IMAGE_BUFFER#2 이미지에 맞게 버퍼를 먼저 설정하도록 변경
                     string filePath = openFileDialog.FileName;
                     Global.Inst.InspStage.SetImageBuffer(filePath);
-                    Global.Inst.InspStage.CurModel.InspectImagePath = filePath;
                 }
             }
         }
@@ -147,6 +146,21 @@ namespace MachineVision_PCB
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             Global.Inst.Dispose();
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.Left)
+            {
+                Global.Inst.InspStage.MovePrevImage();
+                return true;
+            }
+            if (keyData == Keys.Right)
+            {
+                Global.Inst.InspStage.MoveNextImage();
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         //#12_MODEL SAVE#3 모델 파일 열기,저장, 다른 이름으로 저장 기능 구현

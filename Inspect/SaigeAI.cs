@@ -179,7 +179,7 @@ namespace MachineVision_PCB
         }
 
 
-        // 입력된 이미지에서 IAD 검사 진행
+        // 입력된 이미지에서 검사 진행
         public bool InspAIModule(Bitmap bmpImage)
         {
             if (bmpImage is null)

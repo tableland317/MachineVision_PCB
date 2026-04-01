@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace MachineVision_PCB
 {
@@ -70,6 +71,47 @@ namespace MachineVision_PCB
                 Global.Inst.InspStage.SetWorkingState(WorkingState.NONE);
             }
         }
+
+        private void btnPrev_Click(object sender, EventArgs e)
+        {
+            Global.Inst.InspStage.MovePrevImage();
+        }
+
+        private void btnNext_Click(object sender, EventArgs e)
+        {
+            Global.Inst.InspStage.MoveNextImage();
+        }
+
+        private void btnReset_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show(
+                "ROI와 이미지를 모두 초기화하시겠습니까?",
+                "초기화 확인",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (result != DialogResult.Yes)
+                return;
+
+            Global.Inst.InspStage.ResetAll();
+        }
+
+        private void toolTip_Popup(object sender, PopupEventArgs e)
+        {
+
+        }
+
+        private void RunForm_Load(object sender, EventArgs e)
+        {
+            toolTip.SetToolTip(btnPrev, "이전 이미지");     // << 버튼
+            toolTip.SetToolTip(btnNext, "다음 이미지");     // >> 버튼
+            toolTip.SetToolTip(btnGrab, "이미지 촬상"); // 촬영 버튼
+            toolTip.SetToolTip(btnLive, "라이브");      // LIVE 버튼
+            toolTip.SetToolTip(btnStart, "검사 시작");      // 검사 버튼
+            toolTip.SetToolTip(btnStop, "검사 중지");      // 중지 버튼
+            toolTip.SetToolTip(btnReset, "초기화");      // 초기화 버튼
+        }
+
 
     }
 }

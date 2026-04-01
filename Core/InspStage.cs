@@ -225,6 +225,10 @@ namespace MachineVision_PCB.Core
         {
             SLogger.Write($"Load Image : {filePath}");
 
+            // 경로를 먼저 업데이트해야 UpdateDisplay() 시점에 경로가 동기화됨
+            if (_model != null)
+                _model.InspectImagePath = filePath;
+
             Mat matImage = Cv2.ImRead(filePath);
 
             int pixelBpp = 8;
@@ -644,6 +648,19 @@ namespace MachineVision_PCB.Core
             }
         }
 
+        public void ResetAll()
+        {
+            // 선택된 ROI 해제 및 속성창 초기화
+            SelectInspWindow(null);
+
+            // 모든 ROI 제거
+            if (_model != null)
+            {
+                _model.InspWindowList.Clear();
+                UpdateDiagramEntity();
+            }
+        }
+
         //#12_MODEL SAVE#4 Mainform에서 호출되는 모델 열기와 저장 함수        
         public bool LoadModel(string filePath)
         {
@@ -774,6 +791,60 @@ namespace MachineVision_PCB.Core
             _imageSpace.Split(0);
 
             DisplayGrabImage(0);
+
+            return true;
+        }
+
+        public bool MoveNextImage()
+        {
+            if (!EnsureImageLoaderReady())
+                return false;
+
+            string imagePath = _imageLoader.GetNextImagePath();
+            if (imagePath == "")
+                return false;
+
+            SetImageBuffer(imagePath);
+            return true;
+        }
+
+        public bool MovePrevImage()
+        {
+            if (!EnsureImageLoaderReady())
+                return false;
+
+            string imagePath = _imageLoader.GetPrevImagePath();
+            if (imagePath == "")
+                return false;
+
+            SetImageBuffer(imagePath);
+            return true;
+        }
+
+        private bool EnsureImageLoaderReady()
+        {
+            if (_imageLoader is null)
+                return false;
+
+            string inspImagePath = CurModel?.InspectImagePath;
+            if (string.IsNullOrEmpty(inspImagePath))
+                return false;
+
+            string inspImageDir = System.IO.Path.GetDirectoryName(inspImagePath);
+            if (!System.IO.Directory.Exists(inspImageDir))
+                return false;
+
+            // 폴더가 바뀌었거나 아직 한 번도 로딩 안 된 경우에만 재로딩
+            bool dirChanged = !string.Equals(
+                _imageLoader.LoadedDirectory,
+                inspImageDir,
+                System.StringComparison.OrdinalIgnoreCase);
+
+            if (!_imageLoader.IsLoadedImages() || dirChanged)
+            {
+                _imageLoader.LoadImages(inspImageDir);
+                _imageLoader.SetCurrentImage(inspImagePath);
+            }
 
             return true;
         }
