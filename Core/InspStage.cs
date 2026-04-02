@@ -685,6 +685,18 @@ namespace MachineVision_PCB.Core
             //#16_LAST_MODELOPEN#3 마지막 저장 모델 경로를 레지스트리에 저장
             _regKey.SetValue("LastestModelPath", filePath);
 
+            // 타이틀바에 모델명 표시 (수동/자동 로드 모두 적용)
+            var mainForm = System.Windows.Forms.Application.OpenForms
+                           .OfType<MainForm>().FirstOrDefault();
+            if (mainForm != null)
+            {
+                string title = $"{Define.PROGRAM_NAME} - MODEL : {_model.ModelName}";
+                if (mainForm.InvokeRequired)
+                    mainForm.Invoke(new Action(() => mainForm.Text = title));
+                else
+                    mainForm.Text = title;
+            }
+
             return true;
         }
 
