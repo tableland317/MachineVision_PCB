@@ -1,4 +1,4 @@
-﻿using BrightIdeasSoftware;
+using BrightIdeasSoftware;
 using MachineVision_PCB.Inspect;
 using MachineVision_PCB.Teach;
 using System;
@@ -125,6 +125,27 @@ namespace MachineVision_PCB
             // 컬럼 추가
             _treeListView.Columns.AddRange(new OLVColumn[] { colUID, colStatus, colValue, colPath });
 
+            var headerNormal = new HeaderStateStyle
+            {
+                BackColor = UiTheme.Accent,
+                ForeColor = UiTheme.TextOnAccent
+            };
+            var headerHot = new HeaderStateStyle
+            {
+                BackColor = UiTheme.AccentHover,
+                ForeColor = UiTheme.TextOnAccent
+            };
+            _treeListView.HeaderFormatStyle = new HeaderFormatStyle
+            {
+                Normal = headerNormal,
+                Hot = headerHot,
+                Pressed = headerNormal
+            };
+            _treeListView.UseCustomSelectionColors = true;
+            _treeListView.HighlightBackgroundColor = UiTheme.ListSelection;
+            _treeListView.HighlightForegroundColor = UiTheme.TextPrimary;
+            _treeListView.UnfocusedHighlightBackgroundColor = UiTheme.AccentInactive;
+            _treeListView.UnfocusedHighlightForegroundColor = UiTheme.TextPrimary;
 
             // 검사 상세 정보 텍스트박스 생성
             _txtDetails = new TextBox()

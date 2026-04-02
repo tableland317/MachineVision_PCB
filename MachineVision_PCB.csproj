@@ -12,6 +12,7 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -38,7 +39,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
@@ -48,34 +48,33 @@
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net">
-      <HintPath>..\MachineVision_HeeWon\ExternalLib\Dll\Log4Net\log4net.dll</HintPath>
+      <HintPath>..\..\..\..\Vision\JidamVision4\ExternalLib\Dll\Log4Net\log4net.dll</HintPath>
     </Reference>
     <Reference Include="MessagingLibrary">
-      <HintPath>..\MachineVision_HeeWon\ExternalLib\Dll\MessagingLibrary\MessagingLibrary.dll</HintPath>
+      <HintPath>..\..\..\..\Vision\JidamVision4\ExternalLib\Dll\MessagingLibrary\MessagingLibrary.dll</HintPath>
     </Reference>
     <Reference Include="MvCameraControl.Net">
-      <HintPath>..\MachineVision_HeeWon\ExternalLib\Dll\HikRobot\MvCameraControl.Net.dll</HintPath>
+      <HintPath>..\..\..\..\Vision\JidamVision4\ExternalLib\Dll\HikRobot\MvCameraControl.Net.dll</HintPath>
     </Reference>
     <Reference Include="ObjectListView">
-      <HintPath>..\MachineVision_HeeWon\ExternalLib\Dll\ObjectListView\ObjectListView.dll</HintPath>
+      <HintPath>..\..\..\..\Vision\JidamVision4\ExternalLib\Dll\ObjectListView\ObjectListView.dll</HintPath>
     </Reference>
     <Reference Include="OpenCvSharp">
-      <HintPath>..\MachineVision_HeeWon\ExternalLib\Dll\OpenCv\OpenCvSharp.dll</HintPath>
+      <HintPath>..\..\..\..\Vision\JidamVision4\ExternalLib\Dll\OpenCv\OpenCvSharp.dll</HintPath>
     </Reference>
     <Reference Include="OpenCvSharp.Extensions">
-      <HintPath>..\MachineVision_HeeWon\ExternalLib\Dll\OpenCv\OpenCvSharp.Extensions.dll</HintPath>
+      <HintPath>..\..\..\..\Vision\JidamVision4\ExternalLib\Dll\OpenCv\OpenCvSharp.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="SaigeVision.Net.Core.V2">
-      <HintPath>..\MachineVision_HeeWon\ExternalLib\Dll\SaigeVision\SaigeVision.Net.Core.V2.dll</HintPath>
+      <HintPath>D:\c#\HyeongSeokCSharp\HyeongSeokCSharp\ExternLib\Saige\SaigeVision.Net.Core.V2.dll</HintPath>
     </Reference>
     <Reference Include="SaigeVision.Net.V2">
-      <HintPath>..\MachineVision_HeeWon\ExternalLib\Dll\SaigeVision\SaigeVision.Net.V2.dll</HintPath>
+      <HintPath>..\..\..\..\Vision\JidamVision4\ExternalLib\Dll\Saige\SaigeVision.Net.V2.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -90,10 +89,10 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WeifenLuo.WinFormsUI.Docking">
-      <HintPath>..\MachineVision_HeeWon\ExternalLib\Dll\Docking\WeifenLuo.WinFormsUI.Docking.dll</HintPath>
+      <HintPath>..\..\..\..\Vision\JidamVision4\ExternalLib\Dll\Docking\WeifenLuo.WinFormsUI.Docking.dll</HintPath>
     </Reference>
     <Reference Include="WeifenLuo.WinFormsUI.Docking.ThemeVS2015">
-      <HintPath>..\MachineVision_HeeWon\ExternalLib\Dll\Docking\WeifenLuo.WinFormsUI.Docking.ThemeVS2015.dll</HintPath>
+      <HintPath>D:\c#\HyeongSeokCSharp\HyeongSeokCSharp\ExternLib\Docking\WeifenLuo.WinFormsUI.Docking.ThemeVS2015.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -108,6 +107,8 @@
       <DependentUpon>CameraForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Core\Define.cs" />
+    <Compile Include="Core\TabControlDrawMode.cs" />
+    <Compile Include="Core\UiTheme.cs" />
     <Compile Include="Core\Global.cs" />
     <Compile Include="Core\ImageSpace.cs" />
     <Compile Include="Core\InspStage.cs" />

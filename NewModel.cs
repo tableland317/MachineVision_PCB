@@ -1,4 +1,4 @@
-﻿using MachineVision_PCB.Core;
+using MachineVision_PCB.Core;
 using MachineVision_PCB.Setting;
 using System;
 using System.Collections.Generic;
@@ -30,6 +30,7 @@ namespace MachineVision_PCB
         public NewModel()
         {
             InitializeComponent();
+            UiTheme.ApplyTo(this);
         }
 
         private void btnCreate_Click(object sender, EventArgs e)

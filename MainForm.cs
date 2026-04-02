@@ -1,4 +1,4 @@
-﻿using MachineVision_PCB.Core;
+using MachineVision_PCB.Core;
 using MachineVision_PCB.Setting;
 using MachineVision_PCB.Teach;
 using MachineVision_PCB.Util;
@@ -44,10 +44,20 @@ namespace MachineVision_PCB
         {
             InitializeComponent();
 
+            var menuAccentLine = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 2,
+                BackColor = UiTheme.Accent
+            };
+            Controls.Add(menuAccentLine);
+
             //#2_DOCKPANEL#2 DockPanel 초기화
             _dockPanel = new DockPanel
             {
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                BackColor = UiTheme.Background,
+                DockBackColor = UiTheme.Background
             };
             Controls.Add(_dockPanel);
 
@@ -62,6 +72,11 @@ namespace MachineVision_PCB
 
             //#15_INSP_WORKER#2 연속 검사 모드 설정값 로딩
             LoadSetting();
+
+            UiTheme.ApplyTo(this);
+            UiTheme.ApplyDockPanelAccent(_dockPanel);
+            UiTheme.StyleMainMenuLime(mainMenu);
+            ForeColor = Color.Black;
         }
 
         //#2_DOCKPANEL#5 도킹 윈도우를 로드하는 메서드
