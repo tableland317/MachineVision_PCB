@@ -70,6 +70,11 @@ namespace MachineVision_PCB
             //#6_INSP_STAGE#1 전역 인스턴스 초기화
             Global.Inst.Initialize();
 
+            // 시작 시 자동 모델 로드 후 타이틀 갱신
+            Model startModel = Global.Inst.InspStage.CurModel;
+            if (startModel != null)
+                this.Text = GetMdoelTitle(startModel);
+
             //#15_INSP_WORKER#2 연속 검사 모드 설정값 로딩
             LoadSetting();
 
