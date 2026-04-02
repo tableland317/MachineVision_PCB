@@ -107,7 +107,7 @@ namespace MachineVision_PCB
             SetPropertyValue(gradient, "EndColor", end);
         }
 
-        // 스타일
+        // 스타일.
         private static void StyleRecursive(Control c)
         {
             if (c == null) return;

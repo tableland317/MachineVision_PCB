@@ -64,6 +64,8 @@ namespace MachineVision_PCB
 
             _allTabs[tabName] = newTab;
             UiTheme.ApplyTo(newTab);
+            if (_inspProp is BinaryProp binaryProp)
+                binaryProp.ApplyReadableBlackTextAfterTheme();
         }
 
         //#11_MODEL_TREE#2 PropertyType을 InspectType으로 변경

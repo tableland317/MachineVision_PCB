@@ -1,4 +1,4 @@
-﻿using MachineVision_PCB.Algorithm;
+using MachineVision_PCB.Algorithm;
 using MachineVision_PCB.Core;
 using System;
 using System.Collections.Generic;
@@ -80,6 +80,40 @@ namespace MachineVision_PCB.Property
             cbHighlight.Items.Add("파란색");
             cbHighlight.Items.Add("흑백");
             cbHighlight.SelectedIndex = 0; // 기본값으로 "사용안함" 선택
+        }
+
+        /// <summary>UiTheme 적용 후 호출 — 밝은 바탕에 검정 글자로 가독성 확보.</summary>
+        internal void ApplyReadableBlackTextAfterTheme()
+        {
+            Color paper = Color.FromArgb(0xF8, 0xFA, 0xF6);
+            Color header = Color.FromArgb(0xE8, 0xEC, 0xE4);
+
+            BackColor = paper;
+            ForeColor = Color.Black;
+            grpBinary.BackColor = paper;
+            grpBinary.ForeColor = Color.Black;
+            lbChannel.ForeColor = Color.Black;
+            lbHighlight.ForeColor = Color.Black;
+            label1.ForeColor = Color.Black;
+            chkUse.ForeColor = Color.Black;
+            chkRotatedRect.ForeColor = Color.Black;
+
+            foreach (ComboBox cb in new[] { cbChannel, cbHighlight, cbBinMethod })
+            {
+                cb.BackColor = Color.White;
+                cb.ForeColor = Color.Black;
+            }
+
+            binRangeTrackbar.BackColor = paper;
+            binRangeTrackbar.ForeColor = Color.Black;
+
+            dataGridViewFilter.BackgroundColor = Color.White;
+            dataGridViewFilter.DefaultCellStyle.BackColor = Color.White;
+            dataGridViewFilter.DefaultCellStyle.ForeColor = Color.Black;
+            dataGridViewFilter.ColumnHeadersDefaultCellStyle.BackColor = header;
+            dataGridViewFilter.ColumnHeadersDefaultCellStyle.ForeColor = Color.Black;
+            dataGridViewFilter.EnableHeadersVisualStyles = false;
+            dataGridViewFilter.GridColor = Color.FromArgb(0xC0, 0xC8, 0xB8);
         }
 
         private void InitializeFilterDataGridView()
