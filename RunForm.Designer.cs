@@ -107,7 +107,7 @@
             this.btnPrev.ImageList = this.runImageList;
             this.btnPrev.Location = new System.Drawing.Point(152, 191);
             this.btnPrev.Name = "btnPrev";
-            this.btnPrev.Size = new System.Drawing.Size(91, 70);
+            this.btnPrev.Size = new System.Drawing.Size(90, 80);
             this.btnPrev.TabIndex = 2;
             this.btnPrev.UseVisualStyleBackColor = true;
             this.btnPrev.Click += new System.EventHandler(this.btnPrev_Click);
@@ -118,7 +118,7 @@
             this.btnNext.ImageList = this.runImageList;
             this.btnNext.Location = new System.Drawing.Point(343, 191);
             this.btnNext.Name = "btnNext";
-            this.btnNext.Size = new System.Drawing.Size(80, 70);
+            this.btnNext.Size = new System.Drawing.Size(90, 80);
             this.btnNext.TabIndex = 3;
             this.btnNext.UseVisualStyleBackColor = true;
             this.btnNext.Click += new System.EventHandler(this.btnNext_Click);
