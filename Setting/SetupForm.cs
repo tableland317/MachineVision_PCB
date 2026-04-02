@@ -1,4 +1,5 @@
-﻿using System;
+using MachineVision_PCB;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -24,6 +25,7 @@ namespace MachineVision_PCB.Setting
 
             //#SETUP#5 탭 콘트롤 추가, 아래 함수 함께 구현할것
             InitTabControl();
+            UiTheme.ApplyTo(this);
         }
 
         private void InitTabControl()

@@ -1,4 +1,4 @@
-﻿using MachineVision_PCB.Algorithm;
+using MachineVision_PCB.Algorithm;
 using MachineVision_PCB.Core;
 using MachineVision_PCB.Property;
 using MachineVision_PCB.Teach;
@@ -63,6 +63,7 @@ namespace MachineVision_PCB
             tabPropControl.SelectedTab = newTab; // 새 탭 선택
 
             _allTabs[tabName] = newTab;
+            UiTheme.ApplyTo(newTab);
         }
 
         //#11_MODEL_TREE#2 PropertyType을 InspectType으로 변경

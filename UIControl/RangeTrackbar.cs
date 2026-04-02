@@ -1,4 +1,5 @@
-﻿using System;
+using MachineVision_PCB;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -101,7 +102,7 @@ namespace MachineVision_PCB.UIControl
             Rectangle trackRect = GetTrackRectangle();
 
             // 트랙 바닥
-            using (SolidBrush trackBrush = new SolidBrush(SystemColors.ControlDark))
+            using (SolidBrush trackBrush = new SolidBrush(UiTheme.Border))
             {
                 g.FillRectangle(trackBrush, trackRect);
             }
@@ -114,7 +115,7 @@ namespace MachineVision_PCB.UIControl
             if (_valueLeft <= _valueRight)
             {
                 Rectangle hl = new Rectangle(leftPx, trackRect.Top, rightPx - leftPx, TrackHeight);
-                using (SolidBrush hlBrush = new SolidBrush(SystemColors.Highlight))
+                using (SolidBrush hlBrush = new SolidBrush(UiTheme.Accent))
                 {
                     g.FillRectangle(hlBrush, hl);
                 }
@@ -123,7 +124,7 @@ namespace MachineVision_PCB.UIControl
             {
                 Rectangle leftHl = new Rectangle(trackRect.Left, trackRect.Top, rightPx - trackRect.Left, TrackHeight);
                 Rectangle rightHl = new Rectangle(leftPx, trackRect.Top, trackRect.Right - leftPx, TrackHeight);
-                using (SolidBrush hlBrush = new SolidBrush(SystemColors.Highlight))
+                using (SolidBrush hlBrush = new SolidBrush(UiTheme.Accent))
                 {
                     g.FillRectangle(hlBrush, leftHl);
                     g.FillRectangle(hlBrush, rightHl);
@@ -138,11 +139,12 @@ namespace MachineVision_PCB.UIControl
         private void DrawThumb(Graphics g, int centerX, int centerY, int value)
         {
             Rectangle thumbRect = new Rectangle(centerX - ThumbWidth / 2, centerY - ThumbHeight / 2, ThumbWidth, ThumbHeight);
-            using (SolidBrush b = new SolidBrush(SystemColors.ControlLightLight))
+            using (SolidBrush b = new SolidBrush(UiTheme.TextMuted))
             {
                 g.FillRectangle(b, thumbRect);
             }
-            g.DrawRectangle(Pens.Gray, thumbRect);
+            using (var pen = new Pen(UiTheme.Accent))
+                g.DrawRectangle(pen, thumbRect);
 
             // 값 텍스트 (thumb 위에)
             string txt = value.ToString();

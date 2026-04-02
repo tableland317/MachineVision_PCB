@@ -1,6 +1,7 @@
-﻿using MachineVision_PCB.Algorithm;
+using MachineVision_PCB.Algorithm;
 using MachineVision_PCB.Core;
 using MachineVision_PCB.Teach;
+using MachineVision_PCB;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -142,6 +143,8 @@ namespace MachineVision_PCB.UIControl
             _contextMenu.Items.Add(new ToolStripSeparator());
             _contextMenu.Items.Add("Teaching", null, OnTeachingClicked);
             _contextMenu.Items.Add("Unlock", null, OnUnlockClicked);
+
+            UiTheme.StyleContextMenu(_contextMenu);
 
             MouseWheel += new MouseEventHandler(ImageViewCCtrl_MouseWheel);
         }

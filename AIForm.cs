@@ -37,7 +37,7 @@ namespace MachineVision_PCB
                 _saigeAI?.Dispose();
                 _saigeAI = null;
                 lblStatusValue.Text = "대기";
-                lblStatusValue.ForeColor = SystemColors.ControlText;
+                lblStatusValue.ForeColor = UiTheme.TextPrimary;
             }
 
             _engineType = selected;
@@ -187,7 +187,7 @@ namespace MachineVision_PCB
 
             rtbLog.Clear();
             lblStatusValue.Text = "대기";
-            lblStatusValue.ForeColor = SystemColors.ControlText;
+            lblStatusValue.ForeColor = UiTheme.TextPrimary;
         }
 
         private void AppendLog(string message)
