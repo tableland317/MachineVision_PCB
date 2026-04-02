@@ -57,10 +57,10 @@
             // 
             this.runImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("runImageList.ImageStream")));
             this.runImageList.TransparentColor = System.Drawing.Color.Transparent;
-            this.runImageList.Images.SetKeyName(0, "camera_color.png");
-            this.runImageList.Images.SetKeyName(1, "live-64.png");
-            this.runImageList.Images.SetKeyName(2, "start-64.png");
-            this.runImageList.Images.SetKeyName(3, "stop-64.png");
+            this.runImageList.Images.SetKeyName(0, "capture.png");
+            this.runImageList.Images.SetKeyName(1, "live.png");
+            this.runImageList.Images.SetKeyName(2, "inspection.png");
+            this.runImageList.Images.SetKeyName(3, "stop.png");
             this.runImageList.Images.SetKeyName(4, "arrow-rotate-left-solid-full.png");
             this.runImageList.Images.SetKeyName(5, "angles-left-solid-full.png");
             this.runImageList.Images.SetKeyName(6, "angles-right-solid-full.png");
@@ -152,7 +152,7 @@
             this.Controls.Add(this.btnGrab);
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "RunForm";
-            this.Text = "RunForm";
+            this.Text = "Run";
             this.Load += new System.EventHandler(this.RunForm_Load);
             this.ResumeLayout(false);
 

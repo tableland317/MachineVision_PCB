@@ -185,6 +185,10 @@ namespace MachineVision_PCB
             ResultForm resultForm = MainForm.GetDockForm<ResultForm>();
             resultForm?.ShowAIRecords(_classRecords);
 
+            // CameraForm에 박스가 구워진 이미지 대신 원본 이미지로 복원
+            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            cameraForm?.UpdateDisplay();
+
             rtbLog.Clear();
             lblStatusValue.Text = "대기";
             lblStatusValue.ForeColor = UiTheme.TextPrimary;

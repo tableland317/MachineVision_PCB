@@ -261,5 +261,7 @@ namespace MachineVision_PCB
             bool isChecked = cycleModeMenuItem.Checked;
             SettingXml.Inst.CycleMode = isChecked;
         }
+
+       
     }
 }

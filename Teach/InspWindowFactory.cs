@@ -59,16 +59,14 @@ namespace MachineVision_PCB.Teach
             switch (inspWindow.InspWindowType)
             {
                 case InspWindowType.Base:
-                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
-                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
-                    break;
                 case InspWindowType.Body:
-                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
-                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
-                    break;
                 case InspWindowType.Sub:
                     inspWindow.AddInspAlgorithm(InspectType.InspMatch);
                     inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    // Base/Body/Sub는 생성 시 Match 기본 비활성화
+                    var matchAlgo = inspWindow.FindInspAlgorithm(InspectType.InspMatch);
+                    if (matchAlgo != null)
+                        matchAlgo.IsUse = false;
                     break;
 
                 //#15_INSP_WORKER#4 InspWindowType.ID추가, 보정을 위해 패턴매칭만 추가

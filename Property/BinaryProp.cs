@@ -43,6 +43,8 @@ namespace MachineVision_PCB.Property
 
         //#8_INSPECT_BINARY#8 GridView의 업데이트 여부를 제어하는 변수와 Blob 특징 인덱스 정의
         private bool _updateDataGridView = true;
+        // SetProperty() 실행 중 이벤트 핸들러가 _blobAlgo를 덮어쓰지 않도록 하는 플래그
+        private bool _isSettingProperty = false;
         private readonly int COL_USE = 1;
         private readonly int COL_MIN = 2;
         private readonly int COL_MAX = 3;
@@ -148,26 +150,30 @@ namespace MachineVision_PCB.Property
             if (_blobAlgo is null)
                 return;
 
-            chkUse.Checked = _blobAlgo.IsUse;
-
-            BinaryThreshold threshold = _blobAlgo.BinThreshold;
-
-            if (threshold.invert)
+            // UI 이벤트가 _blobAlgo를 덮어쓰지 않도록 플래그 설정
+            _isSettingProperty = true;
+            try
             {
-                binRangeTrackbar.SetThreshold(threshold.upper, threshold.lower);
+                chkUse.Checked = _blobAlgo.IsUse;
+
+                BinaryThreshold threshold = _blobAlgo.BinThreshold;
+
+                if (threshold.invert)
+                    binRangeTrackbar.SetThreshold(threshold.upper, threshold.lower);
+                else
+                    binRangeTrackbar.SetThreshold(threshold.lower, threshold.upper);
+
+                //#8_INSPECT_BINARY#11 이진화 검사 관련 속성값 적용
+                cbBinMethod.SelectedIndex = (int)_blobAlgo.BinMethod;
+                cbChannel.SelectedIndex = (int)_blobAlgo.ImageChannel - 1;
+
+                UpdateDataGridView(true);
+                chkRotatedRect.Checked = _blobAlgo.UseRotatedRect;
             }
-            else
+            finally
             {
-                binRangeTrackbar.SetThreshold(threshold.lower, threshold.upper);
+                _isSettingProperty = false;
             }
-
-            //#8_INSPECT_BINARY#11 이진화 검사 관련 속성값 적용
-            cbBinMethod.SelectedIndex = (int)_blobAlgo.BinMethod;
-
-            cbChannel.SelectedIndex = (int)_blobAlgo.ImageChannel - 1;
-
-            UpdateDataGridView(true);
-            chkRotatedRect.Checked = _blobAlgo.UseRotatedRect;
         }
 
         //UI컨트롤러 값을 이진화 알고리즘 클래스에 적용
@@ -273,6 +279,7 @@ namespace MachineVision_PCB.Property
         //GUI 이벤트와 UpdateBinary함수 연동
         private void Range_RangeChanged(object sender, EventArgs e)
         {
+            if (_isSettingProperty) return;
             UpdateBinary();
         }
 
@@ -284,6 +291,7 @@ namespace MachineVision_PCB.Property
             //#8_INSPECT_BINARY#13 검사 여부에 따른, 활성화 여부
             dataGridViewFilter.Enabled = useBinary;
 
+            if (_isSettingProperty) return;
             GetProperty();
         }
 
@@ -319,7 +327,7 @@ namespace MachineVision_PCB.Property
 
         private void chkRotatedRect_CheckedChanged(object sender, EventArgs e)
         {
-            if (_blobAlgo is null)
+            if (_blobAlgo is null || _isSettingProperty)
                 return;
 
             _blobAlgo.UseRotatedRect = chkRotatedRect.Checked;
@@ -327,7 +335,7 @@ namespace MachineVision_PCB.Property
 
         private void cbBinMethod_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (_blobAlgo is null)
+            if (_blobAlgo is null || _isSettingProperty)
                 return;
 
             _blobAlgo.BinMethod = (BinaryMethod)cbBinMethod.SelectedIndex;
@@ -353,7 +361,7 @@ namespace MachineVision_PCB.Property
         //#18_IMAGE_CHANNEL#11 이미지 채널 변경시, 화면에 해당 채널을 표시
         private void cbChannel_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (_blobAlgo is null)
+            if (_blobAlgo is null || _isSettingProperty)
                 return;
 
             _blobAlgo.ImageChannel = (eImageChannel)cbChannel.SelectedIndex + 1;
