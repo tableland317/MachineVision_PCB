@@ -115,6 +115,16 @@ namespace MachineVision_PCB.Inspect
                 }
             }
 
+            // ResultForm 업데이트 (백그라운드 스레드에서 호출될 수 있으므로 Invoke 처리)
+            ResultForm resultForm = MainForm.GetDockForm<ResultForm>();
+            if (resultForm != null)
+            {
+                if (resultForm.InvokeRequired)
+                    resultForm.Invoke(new Action(() => resultForm.AddModelResult(curMode)));
+                else
+                    resultForm.AddModelResult(curMode);
+            }
+
             return true;
         }
 

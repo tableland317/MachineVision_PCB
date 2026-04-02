@@ -247,13 +247,6 @@ namespace MachineVision_PCB.Algorithm
 
             OutBlobCount = 1;
 
-            if (IsDefect)
-            {
-                string resultInfo = "";
-                resultInfo = $"[{result}] Blob count [in : {areaFilter.min},{areaFilter.max},out : {pixelCount}]";
-                ResultString.Add(resultInfo);
-            }
-
             return true;
         }
 
@@ -405,12 +398,6 @@ namespace MachineVision_PCB.Algorithm
             {
                 string rectInfo = $"Count:{findBlobCount}";
                 _findArea.Add(new DrawInspectInfo(InspRect, rectInfo, InspectType.InspBinary, DecisionType.Defect));
-
-                result = "NG";
-
-                string resultInfo = "";
-                resultInfo = $"[{result}] Blob count [in : {countFilter.min},{countFilter.max},out : {findBlobCount}]";
-                ResultString.Add(resultInfo);
             }
 
             return true;

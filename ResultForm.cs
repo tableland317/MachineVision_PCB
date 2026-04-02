@@ -95,7 +95,7 @@ namespace MachineVision_PCB
                 }
             };
 
-            var colValue = new OLVColumn("검출 수", "")
+            var colValue = new OLVColumn("검출", "")
             {
                 Width = 70,
                 TextAlign = HorizontalAlignment.Center,
@@ -103,7 +103,10 @@ namespace MachineVision_PCB
                 {
                     if (obj is AIClassRecord cls)  return cls.TotalCount.ToString();
                     if (obj is AIImageEntry entry) return entry.Count.ToString();
-                    if (obj is InspResult res)     return res.ResultValue;
+                    if (obj is InspResult res)
+                        return res.InspType == Core.InspectType.InspMatch
+                            ? res.ResultValue + "%"
+                            : res.ResultValue;
                     return "";
                 }
             };
@@ -162,7 +165,10 @@ namespace MachineVision_PCB
 
             if (inspWindow.InspResultList.Count > 0)
             {
-                InspResult inspResult = inspWindow.InspResultList[0];
+                // InspBinary 결과를 우선 표시, 없으면 첫 번째 결과 표시
+                InspResult inspResult =
+                    inspWindow.InspResultList.FirstOrDefault(r => r.InspType == Core.InspectType.InspBinary)
+                    ?? inspWindow.InspResultList[0];
                 ShowDedtail(inspResult);
             }
         }

@@ -35,8 +35,9 @@ namespace MachineVision_PCB.Inspect
                 if (algo.IsUse == false)
                     continue;
 
+                // 개별 알고리즘 실패 시 해당 알고리즘만 건너뛰고 나머지는 계속 실행
                 if (!algo.DoInspect())
-                    return false;
+                    continue;
 
                 string resultInfo = string.Join("\r\n", algo.ResultString);
 
@@ -56,10 +57,39 @@ namespace MachineVision_PCB.Inspect
                         break;
                     case InspectType.InspBinary:
                         BlobAlgorithm blobAlgo = algo as BlobAlgorithm;
-                        int min = blobAlgo.BlobFilters[blobAlgo.FILTER_COUNT].min;
-                        int max = blobAlgo.BlobFilters[blobAlgo.FILTER_COUNT].max;
+                        BlobFilter countFilter = blobAlgo.BlobFilters[blobAlgo.FILTER_COUNT];
+                        int min = countFilter.min;
+                        int max = countFilter.max;
+                        int found = blobAlgo.OutBlobCount;
 
-                        inspResult.ResultValue = $"{blobAlgo.OutBlobCount}/{min}~{max}";
+                        inspResult.ResultValue = $"{found}/{min}~{max}";
+
+                        if (algo.IsDefect)
+                        {
+                            if (countFilter.isUse)
+                            {
+                                string reason    = found < min ? "핀 누락" : "핀 초과";
+                                string criterion = found < min
+                                    ? $"기준: 최소 {min}개"
+                                    : $"기준: 최대 {max}개";
+                                inspResult.ResultInfos =
+                                    $"[{window.Name} 영역 검사 실패 - {reason}]\r\n" +
+                                    $"- 핀 검출 수: {found}개  ({criterion}) → NG!";
+                            }
+                            else
+                            {
+                                inspResult.ResultInfos =
+                                    $"[{window.Name} 영역 검사 실패]\r\n" +
+                                    $"- 예상치 못한 블롭 검출: {found}개 → NG!";
+                            }
+                        }
+                        else
+                        {
+                            string range = countFilter.isUse ? $"{min}~{max}개" : "제한 없음";
+                            inspResult.ResultInfos =
+                                $"[{window.Name} 영역 검사 완료 - OK]\r\n" +
+                                $"- 핀 검출 수: {found}개  (기준: {range})";
+                        }
                         break;
                 }
 
