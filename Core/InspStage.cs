@@ -265,6 +265,14 @@ namespace MachineVision_PCB.Core
 
             _imageSpace.Split(bufferIndex);
 
+            // 프리뷰 이미지도 새 이미지로 동기화 (SetBinary가 낡은 이미지를 참조하지 않도록)
+            if (_previewImage != null)
+            {
+                Bitmap previewBitmap = _imageSpace.GetBitmap(bufferIndex, eImageChannel.Color);
+                if (previewBitmap != null)
+                    _previewImage.SetImage(BitmapConverter.ToMat(previewBitmap));
+            }
+
             DisplayGrabImage(bufferIndex);
         }
 
