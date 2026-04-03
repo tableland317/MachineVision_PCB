@@ -42,6 +42,8 @@ namespace MachineVision_PCB
 
     public class SaigeAI : IDisposable
     {
+
+
         AIEngineType _engineType;
         IADEngine _iADEngine = null;
         IADResult _iADResult = null;
@@ -152,7 +154,7 @@ namespace MachineVision_PCB
             option.CalcMask = false;
             option.CalcObjectAreaAndApplyThreshold = true;
             option.CalcObjectScoreAndApplyThreshold = true;
-            option.OversizedImageHandling = OverSizeImageFlags.do_not_inspect;
+            option.OversizedImageHandling = OverSizeImageFlags.resize_to_fit;
 
             //option.ObjectScoreThresholdPerClass[1] = 0;
             //option.ObjectScoreThresholdPerClass[2] = 0;
@@ -203,6 +205,11 @@ namespace MachineVision_PCB
 
             _inspImage = bmpImage;
 
+            //int targetWidth = 2594;  // Saige 모델 학습 시 설정한 Width
+            //int targetHeight = 1944; // Saige 모델 학습 시 설정한 Height
+
+            //Bitmap resizedBmp = new Bitmap(bmpImage, targetWidth, targetHeight);
+
             SrImage srImage = new SrImage(bmpImage);
 
             Stopwatch sw = Stopwatch.StartNew();
@@ -225,7 +232,6 @@ namespace MachineVision_PCB
                         MessageBox.Show("엔진이 초기화되지 않았습니다. LoadEngine 메서드를 호출하여 엔진을 초기화하세요.");
                         return false;
                     }
-                    // Segmentation 엔진을 이용하여 검사합니다.
                     _segResult = _segEngine.Inspection(srImage);
                     break;
                 case AIEngineType.Detection:

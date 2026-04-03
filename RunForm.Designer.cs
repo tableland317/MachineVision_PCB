@@ -105,7 +105,7 @@
             // 
             this.btnPrev.ImageIndex = 5;
             this.btnPrev.ImageList = this.runImageList;
-            this.btnPrev.Location = new System.Drawing.Point(152, 191);
+            this.btnPrev.Location = new System.Drawing.Point(366, 631);
             this.btnPrev.Name = "btnPrev";
             this.btnPrev.Size = new System.Drawing.Size(90, 80);
             this.btnPrev.TabIndex = 2;
@@ -116,7 +116,7 @@
             // 
             this.btnNext.ImageIndex = 6;
             this.btnNext.ImageList = this.runImageList;
-            this.btnNext.Location = new System.Drawing.Point(343, 191);
+            this.btnNext.Location = new System.Drawing.Point(479, 631);
             this.btnNext.Name = "btnNext";
             this.btnNext.Size = new System.Drawing.Size(90, 80);
             this.btnNext.TabIndex = 3;
@@ -127,7 +127,7 @@
             // 
             this.btnReset.ImageIndex = 4;
             this.btnReset.ImageList = this.runImageList;
-            this.btnReset.Location = new System.Drawing.Point(463, 432);
+            this.btnReset.Location = new System.Drawing.Point(463, 183);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(102, 104);
             this.btnReset.TabIndex = 4;
