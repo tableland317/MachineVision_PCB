@@ -530,6 +530,15 @@ namespace MachineVision_PCB.Core
 
             _imageSpace.Split(bufferIndex);
 
+            // 카메라 프레임이 들어올 때마다 PreviewImage 동기화
+            // → RangeTrackBar 조작 시 SetBinary()가 현재 카메라 프레임을 기반으로 동작
+            if (_previewImage != null)
+            {
+                Bitmap previewBitmap = _imageSpace.GetBitmap(bufferIndex, eImageChannel.Color);
+                if (previewBitmap != null)
+                    _previewImage.SetImage(BitmapConverter.ToMat(previewBitmap));
+            }
+
             if (SaveCamImage && Directory.Exists(_capturePath))
             {
                 Mat curImage = GetMat(0, eImageChannel.Color);
