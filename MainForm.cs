@@ -96,7 +96,7 @@ namespace MachineVision_PCB
 
             //#13_INSP_RESULT#7 검사 결과창 30% 비율로 추가
             var resultWindow = new ResultForm();
-            resultWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.4);
+            resultWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.25);
 
             //# MODEL TREE#3 검사 결과창 우측에 40% 비율로 모델트리 추가
             var modelTreeWindow = new ModelTreeForm();
@@ -113,7 +113,7 @@ namespace MachineVision_PCB
 
             //#14_LOGFORM#2 로그창 추가
             var logWindow = new LogForm();
-            logWindow.Show(propWindow.Pane, DockAlignment.Bottom, 0.3);
+            logWindow.Show(propWindow.Pane, DockAlignment.Bottom, 0.25);
 
             //AI 검사창 추가 - 속성창 오른쪽에 배치
             var aiWindow = new AIForm();
