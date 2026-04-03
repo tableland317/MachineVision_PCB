@@ -312,39 +312,47 @@ namespace MachineVision_PCB
             }
         }
 
-        // IAD / Segmentation: 폴리곤 내부의 밝은 픽셀만 초록 강조 후 진한 블루 외곽선.
+        /// <summary>클래스 이름을 기반으로 색상을 반환합니다. Scratch=Yellow, Crack=Red, 기타=Magenta.</summary>
+        private static Color GetClassColor(string className)
+        {
+            switch (className)
+            {
+                case "Scratch": return Color.Red;
+                case "Crack":   return Color.Yellow;
+                default:        return Color.Magenta;
+            }
+        }
+
+        // IAD / Segmentation: 클래스명 기반 색상으로 폴리곤 내부 반투명 채우기 + 뚜렷한 외곽선.
         private void DrawSegResult(SegmentedObject[] segmentedObjects, Bitmap bmp)
         {
             if (segmentedObjects == null)
                 return;
 
-            foreach (var prediction in segmentedObjects)
-            {
-                using (GraphicsPath gp = new GraphicsPath())
-                {
-                    BuildContourPath(prediction, gp);
-                    if (gp.PointCount == 0)
-                        continue;
-
-                    Rectangle region = Rectangle.Round(gp.GetBounds());
-                    HighlightBrightScratchPixels(bmp, region, gp);
-                }
-            }
-
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-                using (Pen pen = new Pen(AiDefectBoxOutline, AiDefectBoxPenWidth))
+
+                foreach (var prediction in segmentedObjects)
                 {
-                    pen.LineJoin = LineJoin.Round;
-                    foreach (var prediction in segmentedObjects)
+                    using (GraphicsPath gp = new GraphicsPath())
                     {
-                        using (GraphicsPath gp = new GraphicsPath())
+                        BuildContourPath(prediction, gp);
+                        if (gp.PointCount == 0)
+                            continue;
+
+                        // 클래스명으로 색상 결정: Scratch=Yellow, Crack=Red, 기타=Magenta
+                        Color baseColor = GetClassColor(prediction.ClassInfo.Name);
+
+                        // 내부 반투명 채우기 (알파 76 ≈ 30%)
+                        using (SolidBrush fillBrush = new SolidBrush(Color.FromArgb(76, baseColor)))
+                            g.FillPath(fillBrush, gp);
+
+                        // 외곽선 (알파 255, 두께 2)
+                        using (Pen outlinePen = new Pen(Color.FromArgb(255, baseColor), 2f))
                         {
-                            BuildContourPath(prediction, gp);
-                            if (gp.PointCount == 0)
-                                continue;
-                            g.DrawPath(pen, gp);
+                            outlinePen.LineJoin = LineJoin.Round;
+                            g.DrawPath(outlinePen, gp);
                         }
                     }
                 }

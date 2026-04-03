@@ -476,7 +476,7 @@ namespace MachineVision_PCB.UIControl
             // 이미지 좌표 → 화면 좌표 변환 후 사각형 그리기
             foreach (DrawInspectInfo rectInfo in _rectInfos)
             {
-                Color lineColor = Color.LightCoral;
+                Color lineColor = Color.Cyan;
                 if (rectInfo.decision == DecisionType.Defect)
                     lineColor = Color.Red;
                 else if (rectInfo.decision == DecisionType.Good)
