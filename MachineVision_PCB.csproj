@@ -246,6 +246,7 @@
     <Compile Include="UIControl\RangeTrackbar.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="UIControl\NgResultPictureBox.cs" />
     <Compile Include="UIControl\RangeTrackbar.Designer.cs">
       <DependentUpon>RangeTrackbar.cs</DependentUpon>
     </Compile>

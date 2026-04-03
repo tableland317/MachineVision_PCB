@@ -1,6 +1,6 @@
-﻿using MachineVision_PCB.Core;
 using MachineVision_PCB.Util;
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -25,10 +25,42 @@ namespace MachineVision_PCB
         {
             InitializeComponent();
 
+            listBoxLogs.DrawMode = DrawMode.OwnerDrawFixed;
+            listBoxLogs.IntegralHeight = false;
+            listBoxLogs.BackColor = UiTheme.InputBackground;
+            listBoxLogs.ForeColor = Color.White;
+            listBoxLogs.DrawItem += ListBoxLogs_DrawItem;
+
             //폼이 닫힐 때 이벤트 제거를 위해 이벤트 추가
             this.FormClosed += LogForm_FormClosed;
             //로그가 추가될 때 이벤트 추가
             SLogger.LogUpdated += OnLogUpdated;
+        }
+
+        private void ListBoxLogs_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0)
+                return;
+
+            bool selected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+            e.DrawBackground();
+
+            string text = listBoxLogs.Items[e.Index]?.ToString() ?? string.Empty;
+            bool isAi = text.IndexOf("[AI]", StringComparison.Ordinal) >= 0;
+
+            Color fore;
+            if (selected)
+                fore = SystemColors.HighlightText;
+            else if (isAi)
+                fore = Color.FromArgb(255, 255, 220, 80);
+            else
+                fore = Color.White;
+
+            TextRenderer.DrawText(e.Graphics, text, e.Font, e.Bounds, fore,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine |
+                TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
+
+            e.DrawFocusRectangle();
         }
 
         //로그 이벤트 발생시, 리스트박스에 로그 추가 함수 호출
@@ -62,6 +94,7 @@ namespace MachineVision_PCB
         //폼이 닫힐 때 이벤트 제거
         private void LogForm_FormClosed(object sender, FormClosedEventArgs e)
         {
+            listBoxLogs.DrawItem -= ListBoxLogs_DrawItem;
             SLogger.LogUpdated -= OnLogUpdated;
             this.FormClosed -= LogForm_FormClosed;
         }

@@ -1,4 +1,4 @@
-﻿namespace MachineVision_PCB
+namespace MachineVision_PCB
 {
     partial class LogForm
     {
@@ -35,7 +35,7 @@
             // 
             this.listBoxLogs.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listBoxLogs.FormattingEnabled = true;
-            this.listBoxLogs.ItemHeight = 12;
+            this.listBoxLogs.ItemHeight = 15;
             this.listBoxLogs.Location = new System.Drawing.Point(0, 0);
             this.listBoxLogs.Name = "listBoxLogs";
             this.listBoxLogs.Size = new System.Drawing.Size(426, 310);

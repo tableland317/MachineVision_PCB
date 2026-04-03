@@ -30,7 +30,7 @@ namespace MachineVision_PCB
             this.btnClear = new System.Windows.Forms.Button();
             this.btnInspect = new System.Windows.Forms.Button();
             this.grpResult = new System.Windows.Forms.GroupBox();
-            this.pbResult = new System.Windows.Forms.PictureBox();
+            this.pbResult = new MachineVision_PCB.UIControl.NgResultPictureBox();
             this.grpModel.SuspendLayout();
             this.grpInspect.SuspendLayout();
             this.grpResult.SuspendLayout();
@@ -177,6 +177,7 @@ namespace MachineVision_PCB
             // pbResult
             // 
             this.pbResult.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
+            this.pbResult.BackColor = System.Drawing.Color.Black;
             this.pbResult.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pbResult.Location = new System.Drawing.Point(8, 18);
             this.pbResult.Name = "pbResult";
@@ -219,6 +220,6 @@ namespace MachineVision_PCB
         private System.Windows.Forms.Label lblStatus;
         private System.Windows.Forms.Label lblStatusValue;
         private System.Windows.Forms.GroupBox grpResult;
-        private System.Windows.Forms.PictureBox pbResult;
+        private MachineVision_PCB.UIControl.NgResultPictureBox pbResult;
     }
 }

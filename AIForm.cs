@@ -136,6 +136,8 @@ namespace MachineVision_PCB
                     ? (_saigeAI.ExtractDefectZoomPreview(resultImage) ?? (Bitmap)resultImage.Clone())
                     : (Bitmap)resultImage.Clone();
                 pbResult.Image = pbBmp;
+                pbResult.ShowNgOverlay = isDefect;
+                pbResult.Invalidate();
                 prev?.Dispose();
 
                 Global.Inst.InspStage.UpdateDisplay(resultImage);
@@ -182,6 +184,8 @@ namespace MachineVision_PCB
         {
             Image prev = pbResult.Image;
             pbResult.Image = null;
+            pbResult.ShowNgOverlay = false;
+            pbResult.Invalidate();
             prev?.Dispose();
 
             _classRecords.Clear();
