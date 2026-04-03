@@ -258,24 +258,46 @@ namespace MachineVision_PCB
         }
         private void DrawDetectionResult(DetectionResult result, Bitmap bmp)
         {
-            Graphics g = Graphics.FromImage(bmp);
-            int step = 10;
-
-            // outline contour
-            foreach (var prediction in result.DetectedObjects)
+            using (Graphics g = Graphics.FromImage(bmp))
             {
-                SolidBrush brush = new SolidBrush(Color.FromArgb(127, prediction.ClassInfo.Color));
-                //g.DrawString(prediction.ClassInfo.Name + " : " + prediction.Area, new Font(FontFamily.GenericSansSerif, 50), brush, 10, step);
-                using (GraphicsPath gp = new GraphicsPath())
+                g.CompositingMode    = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+                g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+
+                foreach (var prediction in result.DetectedObjects)
                 {
-                    float x = (float)prediction.BoundingBox.X;
-                    float y = (float)prediction.BoundingBox.Y;
-                    float width = (float)prediction.BoundingBox.Width;
+                    Color baseColor = prediction.ClassInfo.Color;
+
+                    float x      = (float)prediction.BoundingBox.X;
+                    float y      = (float)prediction.BoundingBox.Y;
+                    float width  = (float)prediction.BoundingBox.Width;
                     float height = (float)prediction.BoundingBox.Height;
-                    gp.AddRectangle(new RectangleF(x, y, width, height));
-                    g.DrawPath(new Pen(brush, 10), gp);
+                    RectangleF rect = new RectangleF(x, y, width, height);
+
+                    // 내부: 반투명 채우기 (알파 ~30%)
+                    using (SolidBrush fillBrush = new SolidBrush(
+                        Color.FromArgb(77, baseColor.R, baseColor.G, baseColor.B)))
+                    {
+                        g.FillRectangle(fillBrush, rect);
+                    }
+
+                    // 외곽선: 완전 불투명 (알파 255), 굵기 3px
+                    using (Pen borderPen = new Pen(
+                        Color.FromArgb(255, baseColor.R, baseColor.G, baseColor.B), 3f))
+                    {
+                        g.DrawRectangle(borderPen, x, y, width, height);
+                    }
+
+                    // 클래스명 + 스코어 라벨
+                    string label = $"{prediction.ClassInfo.Name}  {prediction.Score:F1}%";
+                    using (Font font = new Font("Arial", 14f, FontStyle.Bold))
+                    using (SolidBrush textBrush  = new SolidBrush(Color.White))
+                    using (SolidBrush shadowBrush = new SolidBrush(Color.Black))
+                    {
+                        // 가독성을 위해 그림자 먼저
+                        g.DrawString(label, font, shadowBrush, x + 2, y + 2);
+                        g.DrawString(label, font, textBrush,   x,     y);
+                    }
                 }
-                step += 50;
             }
         }
 
