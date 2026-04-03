@@ -1,5 +1,6 @@
 using MachineVision_PCB.Core;
 using MachineVision_PCB.Inspect;
+using MachineVision_PCB.Util;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -93,13 +94,13 @@ namespace MachineVision_PCB
 
                 lblStatusValue.Text = "모델 로딩 완료";
                 lblStatusValue.ForeColor = Color.Green;
-                AppendLog($"[{DateTime.Now:HH:mm:ss}] 모델 로딩 완료: {System.IO.Path.GetFileName(_modelPath)}");
+                AppendLog($"모델 로딩 완료: {System.IO.Path.GetFileName(_modelPath)}");
             }
             catch (Exception ex)
             {
                 lblStatusValue.Text = "모델 로딩 실패";
                 lblStatusValue.ForeColor = Color.Red;
-                AppendLog($"[{DateTime.Now:HH:mm:ss}] 모델 로딩 실패: {ex.Message}");
+                AppendLog($"모델 로딩 실패: {ex.Message}", SLogger.LogType.Error);
             }
         }
 
@@ -124,18 +125,21 @@ namespace MachineVision_PCB
                 return;
 
             Bitmap resultImage = _saigeAI.GetResultImage();
+            string imagePath = Global.Inst.InspStage.CurModel?.InspectImagePath ?? "";
+            var aiResults = _saigeAI.GetAIInspResults();
+            bool isDefect = aiResults.Any(r => r.IsDefect);
+
             if (resultImage != null)
             {
                 Image prev = pbResult.Image;
-                pbResult.Image = (Bitmap)resultImage.Clone();
+                Bitmap pbBmp = isDefect
+                    ? (_saigeAI.ExtractDefectZoomPreview(resultImage) ?? (Bitmap)resultImage.Clone())
+                    : (Bitmap)resultImage.Clone();
+                pbResult.Image = pbBmp;
                 prev?.Dispose();
 
                 Global.Inst.InspStage.UpdateDisplay(resultImage);
             }
-
-            // 현재 이미지 경로 기준으로 클래스별 결과 누적
-            string imagePath = Global.Inst.InspStage.CurModel?.InspectImagePath ?? "";
-            var aiResults = _saigeAI.GetAIInspResults();
 
             foreach (var _result in aiResults)
             {
@@ -166,11 +170,10 @@ namespace MachineVision_PCB
             ResultForm resultForm = MainForm.GetDockForm<ResultForm>();
             resultForm?.ShowAIRecords(_classRecords);
 
-            bool isDefect = aiResults.Any(r => r.IsDefect);
             lblStatusValue.Text = isDefect ? "NG" : "OK";
             lblStatusValue.ForeColor = isDefect ? Color.Red : Color.Green;
 
-            AppendLog($"[{DateTime.Now:HH:mm:ss}] AI 검사 완료 → {(isDefect ? "NG" : "OK")} " +
+            AppendLog($"AI 검사 완료 → {(isDefect ? "NG" : "OK")} " +
                       $"({string.Join(", ", aiResults.Select(r => $"{r.ObjectID}:{r.ResultValue}개"))})");
 
         }
@@ -189,21 +192,14 @@ namespace MachineVision_PCB
             CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
             cameraForm?.UpdateDisplay();
 
-            rtbLog.Clear();
             lblStatusValue.Text = "대기";
             lblStatusValue.ForeColor = UiTheme.TextPrimary;
         }
 
-        private void AppendLog(string message)
+        /// <summary>LogForm 리스트 및 log4net 파일과 공유 (SLogger).</summary>
+        private void AppendLog(string message, SLogger.LogType type = SLogger.LogType.Info)
         {
-            if (rtbLog.InvokeRequired)
-            {
-                rtbLog.Invoke(new Action<string>(AppendLog), message);
-                return;
-            }
-
-            rtbLog.AppendText(message + Environment.NewLine);
-            rtbLog.ScrollToCaret();
+            SLogger.Write("[AI] " + message, type);
         }
     }
 }

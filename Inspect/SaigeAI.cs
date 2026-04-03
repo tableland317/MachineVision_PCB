@@ -1,4 +1,4 @@
-﻿using SaigeVision.Net.V2;
+using SaigeVision.Net.V2;
 using SaigeVision.Net.V2.Detection;
 using SaigeVision.Net.V2.IAD;
 using SaigeVision.Net.V2.Segmentation;
@@ -8,8 +8,10 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -49,6 +51,17 @@ namespace MachineVision_PCB
         DetectionResult _detResult = null;
 
         Bitmap _inspImage = null;
+
+        /// <summary>NG 박스 외곽선 — 모델 클래스 색보다 진한 고대비 블루.</summary>
+        private static readonly Color AiDefectBoxOutline = Color.FromArgb(255, 0, 45, 165);
+
+        /// <summary>스크래치 등 밝은 픽셀에 씌우는 강조색.</summary>
+        private static readonly Color ScratchHighlightColor = Color.FromArgb(255, 0, 220, 90);
+
+        /// <summary>박스(또는 마스크) 내부에서 스크래치처럼 밝은 픽셀만 강조색으로 밀어붙이는 기준 (0–255).</summary>
+        private const int ScratchHighlightLuminanceThreshold = 188;
+
+        private const float AiDefectBoxPenWidth = 4f;
 
         public SaigeAI()
         {
@@ -232,50 +245,145 @@ namespace MachineVision_PCB
             return true;
         }
 
-        // IADResult를 이용하여 결과를 이미지에 그립니다.
-        private void DrawSegResult(SegmentedObject[] segmentedObjects, Bitmap bmp)
+        /// <summary>박스(또는 세그 마스크) 안에서 밝은 영역(스크래치)만 강조색(초록)으로 칠합니다.</summary>
+        private static void HighlightBrightScratchPixels(Bitmap bmp, Rectangle bounds, GraphicsPath clipPath)
         {
-            Graphics g = Graphics.FromImage(bmp);
-            int step = 10;
+            bounds.Intersect(new Rectangle(0, 0, bmp.Width, bmp.Height));
+            if (bounds.Width < 1 || bounds.Height < 1)
+                return;
 
-            // outline contour
-            foreach (var prediction in segmentedObjects)
+            if (clipPath != null)
             {
-                SolidBrush brush = new SolidBrush(Color.FromArgb(127, prediction.ClassInfo.Color));
-                //g.DrawString(prediction.ClassInfo.Name + " : " + prediction.Area, new Font(FontFamily.GenericSansSerif, 50), brush, 10, step);
-                using (GraphicsPath gp = new GraphicsPath())
+                using (Region region = new Region(clipPath))
+                    HighlightBrightScratchPixelsCore(bmp, bounds, region);
+            }
+            else
+                HighlightBrightScratchPixelsCore(bmp, bounds, null);
+        }
+
+        private static void HighlightBrightScratchPixelsCore(Bitmap bmp, Rectangle bounds, Region clipRegion)
+        {
+            BitmapData bd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            try
+            {
+                int stride = bd.Stride;
+                IntPtr scan0 = bd.Scan0;
+                int th = ScratchHighlightLuminanceThreshold;
+
+                for (int y = bounds.Top; y < bounds.Bottom; y++)
                 {
-                    if (prediction.Contour.Value.Count < 3) continue;
-                    gp.AddPolygon(prediction.Contour.Value.ToArray());
-                    foreach (var innerValue in prediction.Contour.InnerValue)
+                    for (int x = bounds.Left; x < bounds.Right; x++)
                     {
-                        gp.AddPolygon(innerValue.ToArray());
+                        if (clipRegion != null && !clipRegion.IsVisible(new Point(x, y)))
+                            continue;
+
+                        int idx = y * stride + x * 3;
+                        byte blue = Marshal.ReadByte(scan0, idx);
+                        byte green = Marshal.ReadByte(scan0, idx + 1);
+                        byte red = Marshal.ReadByte(scan0, idx + 2);
+                        int lum = (red * 30 + green * 59 + blue * 11) / 100;
+                        if (lum < th)
+                            continue;
+
+                        Marshal.WriteByte(scan0, idx, ScratchHighlightColor.B);
+                        Marshal.WriteByte(scan0, idx + 1, ScratchHighlightColor.G);
+                        Marshal.WriteByte(scan0, idx + 2, ScratchHighlightColor.R);
                     }
-                    g.FillPath(brush, gp);
                 }
-                step += 50;
+            }
+            finally
+            {
+                bmp.UnlockBits(bd);
             }
         }
-        private void DrawDetectionResult(DetectionResult result, Bitmap bmp)
-        {
-            Graphics g = Graphics.FromImage(bmp);
-            int step = 10;
 
-            // outline contour
-            foreach (var prediction in result.DetectedObjects)
+        private static void BuildContourPath(SegmentedObject prediction, GraphicsPath gp)
+        {
+            gp.Reset();
+            if (prediction.Contour.Value == null || prediction.Contour.Value.Count < 3)
+                return;
+            gp.AddPolygon(prediction.Contour.Value.ToArray());
+            if (prediction.Contour.InnerValue == null)
+                return;
+            foreach (var innerValue in prediction.Contour.InnerValue)
             {
-                SolidBrush brush = new SolidBrush(Color.FromArgb(127, prediction.ClassInfo.Color));
-                //g.DrawString(prediction.ClassInfo.Name + " : " + prediction.Area, new Font(FontFamily.GenericSansSerif, 50), brush, 10, step);
+                if (innerValue != null && innerValue.Count >= 3)
+                    gp.AddPolygon(innerValue.ToArray());
+            }
+        }
+
+        // IAD / Segmentation: 폴리곤 내부의 밝은 픽셀만 초록 강조 후 진한 블루 외곽선.
+        private void DrawSegResult(SegmentedObject[] segmentedObjects, Bitmap bmp)
+        {
+            if (segmentedObjects == null)
+                return;
+
+            foreach (var prediction in segmentedObjects)
+            {
                 using (GraphicsPath gp = new GraphicsPath())
                 {
-                    float x = (float)prediction.BoundingBox.X;
-                    float y = (float)prediction.BoundingBox.Y;
-                    float width = (float)prediction.BoundingBox.Width;
-                    float height = (float)prediction.BoundingBox.Height;
-                    gp.AddRectangle(new RectangleF(x, y, width, height));
-                    g.DrawPath(new Pen(brush, 10), gp);
+                    BuildContourPath(prediction, gp);
+                    if (gp.PointCount == 0)
+                        continue;
+
+                    Rectangle region = Rectangle.Round(gp.GetBounds());
+                    HighlightBrightScratchPixels(bmp, region, gp);
                 }
-                step += 50;
+            }
+
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                using (Pen pen = new Pen(AiDefectBoxOutline, AiDefectBoxPenWidth))
+                {
+                    pen.LineJoin = LineJoin.Round;
+                    foreach (var prediction in segmentedObjects)
+                    {
+                        using (GraphicsPath gp = new GraphicsPath())
+                        {
+                            BuildContourPath(prediction, gp);
+                            if (gp.PointCount == 0)
+                                continue;
+                            g.DrawPath(pen, gp);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Detection: 박스 내부 밝은 픽셀을 초록 강조 후 진한 블루 사각형.
+        private void DrawDetectionResult(DetectionResult result, Bitmap bmp)
+        {
+            if (result?.DetectedObjects == null)
+                return;
+
+            foreach (var prediction in result.DetectedObjects)
+            {
+                var bb = prediction.BoundingBox;
+                int x = (int)Math.Floor(bb.X);
+                int y = (int)Math.Floor(bb.Y);
+                int w = Math.Max(1, (int)Math.Ceiling(bb.Width));
+                int h = Math.Max(1, (int)Math.Ceiling(bb.Height));
+                var region = new Rectangle(x, y, w, h);
+                HighlightBrightScratchPixels(bmp, region, null);
+            }
+
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                using (Pen pen = new Pen(AiDefectBoxOutline, AiDefectBoxPenWidth))
+                {
+                    pen.LineJoin = LineJoin.Round;
+                    foreach (var prediction in result.DetectedObjects)
+                    {
+                        var bb = prediction.BoundingBox;
+                        float fx = (float)bb.X;
+                        float fy = (float)bb.Y;
+                        float fw = Math.Max(1f, (float)bb.Width);
+                        float fh = Math.Max(1f, (float)bb.Height);
+                        g.DrawRectangle(pen, fx, fy, fw, fh);
+                    }
+                }
             }
         }
 
@@ -306,6 +414,165 @@ namespace MachineVision_PCB
             }
 
             return resultImage;
+        }
+
+        /// <summary>
+        /// NG(결함) 영역의 바운딩을 합친 사각형. 없으면 <see cref="Rectangle.Empty"/>.
+        /// </summary>
+        public Rectangle GetDefectUnionBounds()
+        {
+            Rectangle union = Rectangle.Empty;
+
+            switch (_engineType)
+            {
+                case AIEngineType.AnomalyDetection:
+                    if (_iADResult?.SegmentedObjects == null)
+                        return union;
+                    foreach (var o in _iADResult.SegmentedObjects)
+                    {
+                        Rectangle r = BoundsFromSegmentedObject(o);
+                        if (!r.IsEmpty)
+                            union = union.IsEmpty ? r : Rectangle.Union(union, r);
+                    }
+                    break;
+
+                case AIEngineType.Segmentation:
+                    if (_segResult?.SegmentedObjects == null)
+                        return union;
+                    foreach (var o in _segResult.SegmentedObjects)
+                    {
+                        Rectangle r = BoundsFromSegmentedObject(o);
+                        if (!r.IsEmpty)
+                            union = union.IsEmpty ? r : Rectangle.Union(union, r);
+                    }
+                    break;
+
+                case AIEngineType.Detection:
+                    if (_detResult?.DetectedObjects == null)
+                        return union;
+                    foreach (var o in _detResult.DetectedObjects)
+                    {
+                        var bb = o.BoundingBox;
+                        var r = new Rectangle(
+                            (int)Math.Floor(bb.X),
+                            (int)Math.Floor(bb.Y),
+                            (int)Math.Ceiling(bb.Width),
+                            (int)Math.Ceiling(bb.Height));
+                        if (r.Width > 0 && r.Height > 0)
+                            union = union.IsEmpty ? r : Rectangle.Union(union, r);
+                    }
+                    break;
+            }
+
+            return union;
+        }
+
+        /// <summary>
+        /// 전체 결과 오버레이 이미지에서 결함 부분만 잘라, 작은 영역은 확대합니다. AIForm 결과 미리보기용.
+        /// </summary>
+        public Bitmap ExtractDefectZoomPreview(Bitmap fullAnnotatedImage, int margin = 20, int minShortEdge = 100, int maxLongEdge = 720)
+        {
+            if (fullAnnotatedImage == null)
+                return null;
+
+            Rectangle bounds = GetDefectUnionBounds();
+            if (bounds.IsEmpty)
+                return null;
+
+            bounds.Inflate(margin, margin);
+            Rectangle imgRect = new Rectangle(0, 0, fullAnnotatedImage.Width, fullAnnotatedImage.Height);
+            bounds.Intersect(imgRect);
+            if (bounds.Width < 1 || bounds.Height < 1)
+                return null;
+
+            Bitmap cropped;
+            try
+            {
+                cropped = fullAnnotatedImage.Clone(bounds, fullAnnotatedImage.PixelFormat);
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
+
+            int w = cropped.Width;
+            int h = cropped.Height;
+            int shortEdge = Math.Min(w, h);
+            int longEdge = Math.Max(w, h);
+
+            float scale = 1f;
+            if (shortEdge < minShortEdge && shortEdge > 0)
+                scale = minShortEdge / (float)shortEdge;
+
+            int nw = Math.Max(1, (int)Math.Round(w * scale));
+            int nh = Math.Max(1, (int)Math.Round(h * scale));
+            if (Math.Max(nw, nh) > maxLongEdge)
+            {
+                float shrink = maxLongEdge / (float)Math.Max(nw, nh);
+                nw = Math.Max(1, (int)Math.Round(nw * shrink));
+                nh = Math.Max(1, (int)Math.Round(nh * shrink));
+            }
+
+            if (nw == w && nh == h)
+                return cropped;
+
+            Bitmap scaled = new Bitmap(nw, nh, fullAnnotatedImage.PixelFormat);
+            using (Graphics g = Graphics.FromImage(scaled))
+            {
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                g.DrawImage(cropped, 0, 0, nw, nh);
+            }
+            cropped.Dispose();
+            return scaled;
+        }
+
+        private static Rectangle BoundsFromSegmentedObject(SegmentedObject prediction)
+        {
+            try
+            {
+                if (prediction.Contour.Value == null || prediction.Contour.Value.Count < 1)
+                    return Rectangle.Empty;
+
+                using (GraphicsPath gp = new GraphicsPath())
+                {
+                    if (prediction.Contour.Value.Count >= 3)
+                        gp.AddPolygon(prediction.Contour.Value.ToArray());
+                    else
+                    {
+                        foreach (var p in prediction.Contour.Value)
+                        {
+                            float x = Convert.ToSingle(p.X);
+                            float y = Convert.ToSingle(p.Y);
+                            gp.AddRectangle(new RectangleF(x - 3f, y - 3f, 6f, 6f));
+                        }
+                    }
+
+                    if (prediction.Contour.InnerValue != null)
+                    {
+                        foreach (var innerValue in prediction.Contour.InnerValue)
+                        {
+                            if (innerValue == null || innerValue.Count < 3)
+                                continue;
+                            gp.AddPolygon(innerValue.ToArray());
+                        }
+                    }
+
+                    RectangleF b = gp.GetBounds();
+                    if (b.Width < 0.5f || b.Height < 0.5f)
+                        return Rectangle.Empty;
+
+                    return Rectangle.FromLTRB(
+                        (int)Math.Floor(b.Left),
+                        (int)Math.Floor(b.Top),
+                        (int)Math.Ceiling(b.Right),
+                        (int)Math.Ceiling(b.Bottom));
+                }
+            }
+            catch
+            {
+                return Rectangle.Empty;
+            }
         }
 
         // 검사 결과를 클래스명별로 묶어 InspResult 리스트로 반환

@@ -31,13 +31,10 @@ namespace MachineVision_PCB
             this.btnInspect = new System.Windows.Forms.Button();
             this.grpResult = new System.Windows.Forms.GroupBox();
             this.pbResult = new System.Windows.Forms.PictureBox();
-            this.grpLog = new System.Windows.Forms.GroupBox();
-            this.rtbLog = new System.Windows.Forms.RichTextBox();
             this.grpModel.SuspendLayout();
             this.grpInspect.SuspendLayout();
             this.grpResult.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbResult)).BeginInit();
-            this.grpLog.SuspendLayout();
             this.SuspendLayout();
             //
             // grpModel
@@ -165,60 +162,34 @@ namespace MachineVision_PCB
             this.lblStatusValue.Size = new System.Drawing.Size(24, 12);
             this.lblStatusValue.TabIndex = 3;
             this.lblStatusValue.Text = "대기";
-            //
+            // 
             // grpResult
-            //
-            this.grpResult.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
+            // 
+            this.grpResult.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.grpResult.Controls.Add(this.pbResult);
             this.grpResult.Location = new System.Drawing.Point(6, 285);
             this.grpResult.Name = "grpResult";
-            this.grpResult.Size = new System.Drawing.Size(268, 220);
+            this.grpResult.Size = new System.Drawing.Size(268, 379);
             this.grpResult.TabIndex = 2;
             this.grpResult.TabStop = false;
             this.grpResult.Text = "결과 이미지";
-            //
+            // 
             // pbResult
-            //
+            // 
             this.pbResult.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.pbResult.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pbResult.Location = new System.Drawing.Point(8, 18);
             this.pbResult.Name = "pbResult";
-            this.pbResult.Size = new System.Drawing.Size(250, 192);
+            this.pbResult.Size = new System.Drawing.Size(250, 351);
             this.pbResult.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbResult.TabIndex = 0;
             this.pbResult.TabStop = false;
-            //
-            // grpLog
-            //
-            this.grpLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
-            this.grpLog.Controls.Add(this.rtbLog);
-            this.grpLog.Location = new System.Drawing.Point(6, 512);
-            this.grpLog.Name = "grpLog";
-            this.grpLog.Size = new System.Drawing.Size(268, 150);
-            this.grpLog.TabIndex = 3;
-            this.grpLog.TabStop = false;
-            this.grpLog.Text = "검사 로그";
-            //
-            // rtbLog
-            //
-            this.rtbLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
-            this.rtbLog.BackColor = System.Drawing.Color.Black;
-            this.rtbLog.ForeColor = System.Drawing.Color.LightGreen;
-            this.rtbLog.Location = new System.Drawing.Point(8, 18);
-            this.rtbLog.Name = "rtbLog";
-            this.rtbLog.ReadOnly = true;
-            this.rtbLog.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.rtbLog.Size = new System.Drawing.Size(250, 122);
-            this.rtbLog.TabIndex = 0;
-            this.rtbLog.Text = "";
-            //
+            // 
             // AIForm
-            //
+            // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(280, 670);
-            this.Controls.Add(this.grpLog);
             this.Controls.Add(this.grpResult);
             this.Controls.Add(this.grpInspect);
             this.Controls.Add(this.grpModel);
@@ -230,7 +201,6 @@ namespace MachineVision_PCB
             this.grpInspect.PerformLayout();
             this.grpResult.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pbResult)).EndInit();
-            this.grpLog.ResumeLayout(false);
             this.ResumeLayout(false);
         }
 
@@ -250,7 +220,5 @@ namespace MachineVision_PCB
         private System.Windows.Forms.Label lblStatusValue;
         private System.Windows.Forms.GroupBox grpResult;
         private System.Windows.Forms.PictureBox pbResult;
-        private System.Windows.Forms.GroupBox grpLog;
-        private System.Windows.Forms.RichTextBox rtbLog;
     }
 }
