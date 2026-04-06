@@ -171,56 +171,61 @@ namespace MachineVision_PCB
 
         private async void btnInspect_Click(object sender, EventArgs e)
         {
-            // 사이클 모드 OFF → 단일 검사
-            if (!Setting.SettingXml.Inst.CycleMode)
-            {
-                RunOneInspection();
-                return;
-            }
+            bool cycleMode = Setting.SettingXml.Inst.CycleMode;
 
-            // 사이클 모드 ON → 실행 중이면 중지, 아니면 시작
-            if (_isCycleRunning)
+            if (Setting.SettingXml.Inst.CamType == Grab.CameraType.None)
             {
-                _cycleCts?.Cancel();
-                return;
-            }
-
-            _isCycleRunning = true;
-            btnInspect.Text = "■ 중지";
-            _cycleCts = new CancellationTokenSource();
-            var token = _cycleCts.Token;
-
-            try
-            {
-                while (!token.IsCancellationRequested)
+                // ── 파일 모드 ──────────────────────────────────────────
+                if (!cycleMode)
                 {
-                    // 현재 이미지 검사
-                    if (!RunOneInspection())
-                        break;
+                    // 단일 검사
+                    RunOneInspection();
+                    return;
+                }
 
-                    // 다음 검사 전 대기
-                    await Task.Delay(1000, token);
+                // 사이클 실행 중이면 중지
+                if (_isCycleRunning)
+                {
+                    _cycleCts?.Cancel();
+                    return;
+                }
 
-                    // 파일 모드: 다음 이미지로 이동, 마지막 이미지면 종료
-                    if (!Global.Inst.InspStage.UseCamera)
+                // 사이클 시작
+                _isCycleRunning = true;
+                btnInspect.Text = "■ 중지";
+                _cycleCts = new CancellationTokenSource();
+                var token = _cycleCts.Token;
+
+                try
+                {
+                    while (!token.IsCancellationRequested)
                     {
-                        bool moved = Global.Inst.InspStage.MoveNextImage();
-                        if (!moved)
+                        if (!RunOneInspection())
+                            break;
+
+                        await Task.Delay(1000, token);
+
+                        if (!Global.Inst.InspStage.MoveNextImage())
                             break;
                     }
-                    // 카메라 모드: Live Grab으로 ImageSpace가 자동 갱신되므로 별도 처리 불필요
+                }
+                catch (OperationCanceledException) { }
+                finally
+                {
+                    _isCycleRunning = false;
+                    btnInspect.Text = "AI 검사 실행";
                 }
             }
-            catch (OperationCanceledException) { }
-            finally
+            else if (Setting.SettingXml.Inst.CamType == Grab.CameraType.HikRobotCam)
             {
-                _isCycleRunning = false;
-                btnInspect.Text = "AI 검사 실행";
+                // ── 카메라 모드 ─────────────────────────────────────────
+                // StartAutoRun이 카메라 그랩 사이클을 관리
+                Global.Inst.InspStage.StartAIAutoRun();
             }
         }
 
         /// <summary>현재 이미지에 대해 AI 검사 1회 실행. 성공 시 true 반환.</summary>
-        private bool RunOneInspection()
+        public bool RunOneInspection()
         {
             if (_saigeAI == null)
             {

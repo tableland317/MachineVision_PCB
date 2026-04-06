@@ -84,6 +84,7 @@ namespace MachineVision_PCB.Core
         private string _serialID;
 
         private bool _isInspectMode = false;
+        private bool _isAIInspectMode = false;
 
         public InspStage() { }
         public ImageSpace ImageSpace
@@ -558,12 +559,26 @@ namespace MachineVision_PCB.Core
             if (LiveMode)
             {
                 SLogger.Write("Grab");
-                await Task.Delay(100);  // 비동기 대기
+                await Task.Delay(1000);  // 비동기 대기
                 _grabManager.Grab(bufferIndex, true);  // 다음 촬영 시작
             }
 
             if (_isInspectMode)
                 RunInspect();
+
+            if (_isAIInspectMode)
+                RunAIInspect();
+        }
+
+        private void RunAIInspect()
+        {
+            AIForm aiForm = MainForm.GetDockForm<AIForm>();
+            if (aiForm == null) return;
+
+            if (aiForm.InvokeRequired)
+                aiForm.Invoke(new Action(() => aiForm.RunOneInspection()));
+            else
+                aiForm.RunOneInspection();
         }
 
         private void DisplayGrabImage(int bufferIndex)
@@ -790,6 +805,7 @@ namespace MachineVision_PCB.Core
             //#19_VISION_SEQUENCE#4 시퀀스 정지
             VisionSequence.Inst.StopAutoRun();
             _isInspectMode = false;
+            _isAIInspectMode = false;
 
             SetWorkingState(WorkingState.NONE);
         }
@@ -992,6 +1008,33 @@ namespace MachineVision_PCB.Core
             string modelName = Path.GetFileNameWithoutExtension(modelPath);
             VisionSequence.Inst.StartAutoRun(modelName);
             _isInspectMode = true;
+            _isAIInspectMode = false;   // ROI 검사 전용 → AI 검사 실행 안 함
+            return true;
+        }
+
+        public bool StartAIAutoRun()
+        {
+            SLogger.Write("Action : StartAIAutoRun");
+
+            // AI 모듈이 로드됐는지 확인
+            AIForm aiForm = MainForm.GetDockForm<AIForm>();
+            if (aiForm == null)
+            {
+                SLogger.Write("AIForm을 찾을 수 없습니다.", SLogger.LogType.Error);
+                return false;
+            }
+
+            // LiveMode=true → _multiGrab_TransferCompleted의 Task.Delay()가 검사 주기
+            // _isInspectMode=false → ROI 기반 일반 검사 실행 안 함
+            // _isAIInspectMode=true → 프레임마다 SaigeAI 검사만 실행
+            LiveMode = true;
+            UseCamera = SettingXml.Inst.CamType != CameraType.None ? true : false;
+            _isInspectMode = false;
+            _isAIInspectMode = true;
+
+            SetWorkingState(WorkingState.INSPECT);
+
+            SLogger.Write("AI AutoRun 시작 (ROI 검사 없음, SaigeAI 전용)");
             return true;
         }
 

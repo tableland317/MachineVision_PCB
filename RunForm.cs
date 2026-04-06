@@ -182,12 +182,12 @@ namespace MachineVision_PCB
             else if(SettingXml.Inst.CamType == Grab.CameraType.HikRobotCam)
             {
                 bool cycleMode = SettingXml.Inst.CycleMode;
-                Global.Inst.InspStage.CycleInspect(cycleMode);
-            }
-            else
-            {
                 Global.Inst.InspStage.StartAutoRun();
             }
+            //else
+            //{
+            //    Global.Inst.InspStage.StartAutoRun();
+            //}
         }
 
         private void btnStop_Click(object sender, EventArgs e)
