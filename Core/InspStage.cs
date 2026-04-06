@@ -984,7 +984,7 @@ namespace MachineVision_PCB.Core
             }
 
             LiveMode = false;
-            UseCamera = SettingXml.Inst.CamType != CameraType.HikRobotCam ? true : false;
+            UseCamera = SettingXml.Inst.CamType != CameraType.None ? true : false;
 
             SetWorkingState(WorkingState.INSPECT);
 

@@ -437,9 +437,9 @@ namespace MachineVision_PCB.UIControl
             {
                 string resultText = $"Total: {_inspectResultCount.Total}\r\nOK: {_inspectResultCount.OK}\r\nNG: {_inspectResultCount.NG}";
 
-                float fontSize = 12.0f;
+                float fontSize = 20.0f;
                 Color resultColor = Color.FromArgb(255, 255, 255);
-                PointF textPos = new PointF(Width - 80, 10);
+                PointF textPos = new PointF(Width - 130, 10);
                 DrawText(g, resultText, textPos, fontSize, resultColor);
             }
 
