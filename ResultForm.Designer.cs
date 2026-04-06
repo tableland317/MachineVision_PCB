@@ -1,4 +1,4 @@
-﻿namespace MachineVision_PCB
+namespace MachineVision_PCB
 {
     partial class ResultForm
     {
@@ -37,7 +37,7 @@
             this.ClientSize = new System.Drawing.Size(751, 518);
             this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "ResultForm";
-            this.Text = "Result";
+            this.Text = "검사 결과";
             this.ResumeLayout(false);
 
         }

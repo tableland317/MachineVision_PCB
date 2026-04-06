@@ -17,10 +17,17 @@ namespace MachineVision_PCB
 {
     public partial class ResultForm : DockContent
     {
-        //검사 결과를 보여주기 위한 컨트롤 추가
+        private SplitContainer _outerSplit;
         private SplitContainer _splitContainer;
         private TreeListView _treeListView;
         private TextBox _txtDetails;
+        private GroupBox _grpTeaching;
+        private Panel _pnlTeachingHost;
+
+        /// <summary>검사 결과(좌) : Teaching(우) ≈ 3:1</summary>
+        private const double LayoutResultToTeachingRatio = 0.75;
+
+        private bool _syncingOuterSplit;
 
         public ResultForm()
         {
@@ -32,14 +39,24 @@ namespace MachineVision_PCB
 
         private void InitTreeListView()
         {
-            // SplitContainer 사용하여 상하 분할 레이아웃 구성
+            _outerSplit = new SplitContainer()
+            {
+                Dock = DockStyle.Fill,
+                Orientation = Orientation.Vertical,
+                BorderStyle = BorderStyle.None,
+                SplitterDistance = 480,
+                Panel1MinSize = 200,
+                Panel2MinSize = 140
+            };
+
             _splitContainer = new SplitContainer()
             {
                 Dock = DockStyle.Fill,
                 Orientation = Orientation.Horizontal,
                 SplitterDistance = 120,
                 Panel1MinSize = 70,
-                Panel2MinSize = 70
+                Panel2MinSize = 70,
+                BorderStyle = BorderStyle.None
             };
 
             //TreeListView 검사 결과 트리 생성
@@ -113,7 +130,9 @@ namespace MachineVision_PCB
 
             var colPath = new OLVColumn("경로", "")
             {
-                Width = 250,
+                Width = 180,
+                MinimumWidth = 80,
+                FillsFreeSpace = true,
                 IsEditable = false,
                 AspectGetter = obj =>
                 {
@@ -157,10 +176,61 @@ namespace MachineVision_PCB
                 ReadOnly = true
             };
 
-            // 컨테이너에 컨트롤 추가
             _splitContainer.Panel1.Controls.Add(_treeListView);
             _splitContainer.Panel2.Controls.Add(_txtDetails);
-            Controls.Add(_splitContainer);
+            _outerSplit.Panel1.Controls.Add(_splitContainer);
+
+            _grpTeaching = new GroupBox
+            {
+                Text = "Teaching",
+                Dock = DockStyle.Fill,
+                Padding = new Padding(8, 6, 8, 8)
+            };
+            _pnlTeachingHost = new Panel
+            {
+                Dock = DockStyle.Fill
+            };
+            _grpTeaching.Controls.Add(_pnlTeachingHost);
+            _outerSplit.Panel2.Controls.Add(_grpTeaching);
+
+            Controls.Add(_outerSplit);
+            _outerSplit.Resize += (_, __) => ApplyResultTeachingSplitRatio();
+        }
+
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            ApplyResultTeachingSplitRatio();
+        }
+
+        private void ApplyResultTeachingSplitRatio()
+        {
+            if (_outerSplit == null || _syncingOuterSplit)
+                return;
+            int w = _outerSplit.Width;
+            int sw = _outerSplit.SplitterWidth;
+            if (w <= _outerSplit.Panel1MinSize + _outerSplit.Panel2MinSize + sw)
+                return;
+            int want = (int)(w * LayoutResultToTeachingRatio);
+            want = Math.Max(_outerSplit.Panel1MinSize, want);
+            want = Math.Min(want, w - _outerSplit.Panel2MinSize - sw);
+            if (want < 0 || want == _outerSplit.SplitterDistance)
+                return;
+            _syncingOuterSplit = true;
+            try
+            {
+                _outerSplit.SplitterDistance = want;
+            }
+            finally
+            {
+                _syncingOuterSplit = false;
+            }
+        }
+
+        /// <summary>ModelTreeForm의 ROI 트리를 검사 결과 창 오른쪽(Teaching)에 붙입니다.</summary>
+        public void AttachTeachingTree(ModelTreeForm modelTreeForm)
+        {
+            modelTreeForm?.ReparentTeachingTreeInto(_pnlTeachingHost);
         }
 
         public void AddModelResult(Model curModel)

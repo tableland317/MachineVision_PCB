@@ -1,4 +1,4 @@
-﻿using MachineVision_PCB.Core;
+using MachineVision_PCB.Core;
 using MachineVision_PCB.Teach;
 using System;
 using System.Collections.Generic;
@@ -34,6 +34,17 @@ namespace MachineVision_PCB
     {
         //개별 트리 노트에서 팝업 메뉴 보이기를 위한 메뉴
         private ContextMenuStrip _contextMenu;
+
+        /// <summary>Teaching 트리를 ResultForm 등 다른 컨테이너로 옮길 때 사용합니다.</summary>
+        public void ReparentTeachingTreeInto(Control host)
+        {
+            if (host == null)
+                return;
+            if (host.Controls.Contains(tvModelTree))
+                return;
+            host.Controls.Add(tvModelTree);
+            tvModelTree.Dock = DockStyle.Fill;
+        }
 
         public ModelTreeForm()
         {

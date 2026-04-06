@@ -24,6 +24,8 @@ namespace MachineVision_PCB
         private bool _isCycleRunning = false;
         private CancellationTokenSource _cycleCts;
 
+        private bool _syncingAiLayout;
+
         public AIForm()
         {
             InitializeComponent();
@@ -32,6 +34,64 @@ namespace MachineVision_PCB
                                          .Cast<AIEngineType>()
                                          .ToList();
             cbEngineType.SelectedIndex = 0;
+
+            WireAiFormLayout();
+            SyncAiFormClientWidths();
+        }
+
+        /// <summary>도킹 폭이 좁아도 콤보·텍스트·버튼이 그룹박스 안에 머물도록 합니다.</summary>
+        private void WireAiFormLayout()
+        {
+            grpModel.Padding = new Padding(10, 8, 10, 10);
+            grpInspect.Padding = new Padding(10, 8, 10, 10);
+            cbEngineType.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtModelPath.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            btnSelectModel.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnLoadModel.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnInspect.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnClear.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            Resize += (_, __) => SyncAiFormClientWidths();
+        }
+
+        private void SyncAiFormClientWidths()
+        {
+            if (_syncingAiLayout || grpModel == null || grpInspect == null)
+                return;
+            _syncingAiLayout = true;
+            try
+            {
+                const int gap = 10;
+                int padL = grpModel.Padding.Left;
+                int padR = grpModel.Padding.Right;
+                int w = grpModel.ClientSize.Width - padL - padR;
+                if (w >= 40)
+                {
+                    cbEngineType.SetBounds(padL, cbEngineType.Top, w, cbEngineType.Height);
+                    txtModelPath.SetBounds(padL, txtModelPath.Top, w, txtModelPath.Height);
+                    int half = Math.Max(72, (w - gap) / 2);
+                    int total = half * 2 + gap;
+                    if (total > w)
+                        half = Math.Max(60, (w - gap) / 2);
+                    btnSelectModel.SetBounds(padL, btnSelectModel.Top, half, btnSelectModel.Height);
+                    btnLoadModel.SetBounds(padL + half + gap, btnLoadModel.Top, half, btnLoadModel.Height);
+                }
+
+                int ix = grpInspect.Padding.Left;
+                int ir = grpInspect.Padding.Right;
+                int iw = grpInspect.ClientSize.Width - ix - ir;
+                if (iw >= 40)
+                {
+                    int hW = Math.Max(72, (iw - gap) / 2);
+                    if (hW * 2 + gap > iw)
+                        hW = Math.Max(60, (iw - gap) / 2);
+                    btnInspect.SetBounds(ix, btnInspect.Top, hW, btnInspect.Height);
+                    btnClear.SetBounds(ix + hW + gap, btnClear.Top, hW, btnClear.Height);
+                }
+            }
+            finally
+            {
+                _syncingAiLayout = false;
+            }
         }
 
         private void cbEngineType_SelectedIndexChanged(object sender, EventArgs e)
@@ -185,23 +245,16 @@ namespace MachineVision_PCB
             var aiResults = _saigeAI.GetAIInspResults();
             bool isDefect = aiResults.Any(r => r.IsDefect);
 
+            RunForm runForm = MainForm.GetDockForm<RunForm>();
             if (resultImage != null)
             {
-                Image prev = pbResult.Image;
-                Bitmap pbBmp = isDefect
-                    ? (_saigeAI.ExtractDefectZoomPreview(resultImage) ?? (Bitmap)resultImage.Clone())
-                    : (Bitmap)resultImage.Clone();
-                pbResult.Image = pbBmp;
-                pbResult.ShowNgOverlay = isDefect;
-                lblResultNg.ForeColor = Color.Red;
-                lblResultNg.Visible = isDefect;
-                pbResult.Invalidate();
-                prev?.Dispose();
-
+                runForm?.ShowAIInspectionOverlay(resultImage, _saigeAI, isDefect);
                 Global.Inst.InspStage.UpdateDisplay(resultImage);
             }
             else
-                lblResultNg.Visible = false;
+                runForm?.ClearAIInspectionOverlay();
+
+            ResultForm resultForm = MainForm.GetDockForm<ResultForm>();
 
             foreach (var _result in aiResults)
             {
@@ -222,7 +275,6 @@ namespace MachineVision_PCB
                     classRec.ImageEntries.Add(new AIImageEntry { ImagePath = imagePath, Count = count });
             }
 
-            ResultForm resultForm = MainForm.GetDockForm<ResultForm>();
             resultForm?.ShowAIRecords(_classRecords);
 
             lblStatusValue.Text = isDefect ? "NG" : "OK";
@@ -236,14 +288,9 @@ namespace MachineVision_PCB
 
         private void btnClear_Click(object sender, EventArgs e)
         {
-            Image prev = pbResult.Image;
-            pbResult.Image = null;
-            pbResult.ShowNgOverlay = false;
-            lblResultNg.Visible = false;
-            pbResult.Invalidate();
-            prev?.Dispose();
-
             _classRecords.Clear();
+            RunForm runForm = MainForm.GetDockForm<RunForm>();
+            runForm?.ClearAIInspectionOverlay();
             ResultForm resultForm = MainForm.GetDockForm<ResultForm>();
             resultForm?.ShowAIRecords(_classRecords);
 

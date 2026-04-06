@@ -1,4 +1,4 @@
-﻿using MachineVision_PCB.Algorithm;
+using MachineVision_PCB.Algorithm;
 using MachineVision_PCB.Core;
 using MachineVision_PCB.Teach;
 using MachineVision_PCB.UIControl;
@@ -93,13 +93,7 @@ namespace MachineVision_PCB
 
         private void CameraForm_Resize(object sender, EventArgs e)
         {
-            //#18_IMAGE_CHANNEL#4 메인툴바 너비를 제외하고 이미지 뷰어의 크기를 조정
-
-            int margin = 0;
-            imageViewer.Width = this.Width - mainViewToolbar.Width - margin * 2;
-            imageViewer.Height = this.Height - margin * 2;
-
-            imageViewer.Location = new System.Drawing.Point(margin, margin);
+            // imageViewer는 Dock Fill + 툴바 Dock Right로 레이아웃 (수동 크기 조정 없음)
         }
 
         public void UpdateDisplay(Bitmap bitmap = null)

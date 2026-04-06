@@ -1,4 +1,4 @@
-﻿namespace MachineVision_PCB
+namespace MachineVision_PCB
 {
     partial class CameraForm
     {
@@ -34,11 +34,11 @@
             // 
             // imageViewer
             // 
-            this.imageViewer.Dock = System.Windows.Forms.DockStyle.Left;
+            this.imageViewer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.imageViewer.Location = new System.Drawing.Point(0, 0);
             this.imageViewer.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.imageViewer.Name = "imageViewer";
-            this.imageViewer.Size = new System.Drawing.Size(471, 450);
+            this.imageViewer.Size = new System.Drawing.Size(477, 450);
             this.imageViewer.TabIndex = 1;
             // 
             // mainViewToolbar1
@@ -57,7 +57,7 @@
             this.Controls.Add(this.mainViewToolbar);
             this.Controls.Add(this.imageViewer);
             this.Name = "CameraForm";
-            this.Text = "CameraForm";
+            this.Text = "검사 이미지";
             this.Resize += new System.EventHandler(this.CameraForm_Resize);
             this.ResumeLayout(false);
 

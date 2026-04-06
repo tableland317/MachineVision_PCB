@@ -40,6 +40,13 @@ namespace MachineVision_PCB
         //#2_DOCKPANEL#1 DockPanel을 전역으로 선언
         private static DockPanel _dockPanel;
 
+        // 도킹 비율 (UI 레퍼런스 스크린샷 기준: 좌 ~18%, 우 ~20%, 하단 높이 ~28%, 하단 가로 검사결과|AI 반반)
+        private const double LayoutLeftRunPortion = 0.18;
+        private const double LayoutRightDockPortion = 0.20;
+        private const double LayoutLogOfRightPortion = 0.30;
+        private const double LayoutBottomDockPortion = 0.28;
+        private const double LayoutBottomAiOfPanePortion = 0.50;
+
         public MainForm()
         {
             InitializeComponent();
@@ -81,45 +88,42 @@ namespace MachineVision_PCB
             UiTheme.ApplyTo(this);
             UiTheme.ApplyDockPanelAccent(_dockPanel);
             UiTheme.StyleMainMenuLime(mainMenu);
-            ForeColor = Color.Black;
+            ForeColor = UiTheme.TextPrimary;
         }
 
         //#2_DOCKPANEL#5 도킹 윈도우를 로드하는 메서드
         private void LoadDockingWindows()
         {
-            //도킹해제 금지 설정
             _dockPanel.AllowEndUserDocking = false;
+            // Teaching: DockState.Hidden은 Show에 사용 불가 → Document로 등록 후 즉시 Hide(Contents 유지). 트리는 ResultForm으로 옮김.
+            var modelTreeWindow = new ModelTreeForm();
+            modelTreeWindow.Show(_dockPanel, DockState.Document);
+            modelTreeWindow.Hide();
 
-            //메인폼 설정
+            // 중앙: 검사 이미지(전체 높이, 결과 미리보기 분리로 영역 확대)
             var cameraWindow = new CameraForm();
             cameraWindow.Show(_dockPanel, DockState.Document);
 
-            //#13_INSP_RESULT#7 검사 결과창 30% 비율로 추가
-            var resultWindow = new ResultForm();
-            resultWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.25);
-
-            //# MODEL TREE#3 검사 결과창 우측에 40% 비율로 모델트리 추가
-            var modelTreeWindow = new ModelTreeForm();
-            modelTreeWindow.Show(resultWindow.Pane, DockAlignment.Right, 0.4);
-
-            //실행창 추가
             var runWindow = new RunForm();
-            runWindow.Show(modelTreeWindow.Pane, null);
+            runWindow.Show(cameraWindow.Pane, DockAlignment.Left, LayoutLeftRunPortion);
 
-            //속성창 추가
+            // 우측: 속성 + 로그
             var propWindow = new PropertiesForm();
             propWindow.Show(_dockPanel, DockState.DockRight);
-            _dockPanel.DockRightPortion = 0.4;
+            _dockPanel.DockRightPortion = LayoutRightDockPortion;
 
-            //#14_LOGFORM#2 로그창 추가
             var logWindow = new LogForm();
-            logWindow.Show(propWindow.Pane, DockAlignment.Bottom, 0.25);
+            logWindow.Show(propWindow.Pane, DockAlignment.Bottom, LayoutLogOfRightPortion);
 
-            //AI 검사창 추가 - 속성창 오른쪽에 배치
+            // 하단: 검사 결과(+Teaching) | AI 폼
+            _dockPanel.DockBottomPortion = LayoutBottomDockPortion;
+            var resultWindow = new ResultForm();
+            resultWindow.Show(_dockPanel, DockState.DockBottom);
+
             var aiWindow = new AIForm();
-            aiWindow.Show(propWindow.Pane, DockAlignment.Left, 0.58);
+            aiWindow.Show(resultWindow.Pane, DockAlignment.Right, LayoutBottomAiOfPanePortion);
 
-
+            resultWindow.AttachTeachingTree(modelTreeWindow);
         }
         private void LoadSetting()
         {

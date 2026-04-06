@@ -1,4 +1,4 @@
-﻿namespace MachineVision_PCB
+namespace MachineVision_PCB
 {
     partial class MainForm
     {

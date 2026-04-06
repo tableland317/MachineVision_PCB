@@ -1,5 +1,7 @@
-﻿using MachineVision_PCB.Core;
+using MachineVision_PCB.Core;
+using MachineVision_PCB.Inspect;
 using MachineVision_PCB.Setting;
+using MachineVision_PCB.UIControl;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,15 +12,151 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace MachineVision_PCB
 {
     public partial class RunForm : DockContent
     {
+        /// <summary>실행 버튼 영역 고정 높이(px). 나머지는 결과 이미지.</summary>
+        private const int LayoutRunButtonsAreaHeight = 288;
+
+        private SplitContainer _splitRun;
+        private GroupBox _grpAiResult;
+        private NgResultPictureBox _pbAiResult;
+        private Label _lblResultNg;
+        private bool _syncingRunSplit;
+
         public RunForm()
         {
             InitializeComponent();
+            BuildRunLayoutWithAiPreview();
+        }
+
+        private void BuildRunLayoutWithAiPreview()
+        {
+            _splitRun = new SplitContainer
+            {
+                Dock = DockStyle.Fill,
+                Orientation = Orientation.Horizontal,
+                BorderStyle = BorderStyle.None,
+                SplitterWidth = 5,
+                Panel1MinSize = 160,
+                Panel2MinSize = 100,
+                FixedPanel = FixedPanel.Panel1
+            };
+            _splitRun.Panel2.Padding = new Padding(2, 0, 2, 2);
+            Controls.Remove(tblMain);
+            tblMain.Dock = DockStyle.Fill;
+            _splitRun.Panel1.Controls.Add(tblMain);
+
+            _grpAiResult = new GroupBox
+            {
+                Text = "결과 이미지",
+                Dock = DockStyle.Fill,
+                Margin = new Padding(0, 2, 0, 0),
+                Padding = new Padding(10, 8, 10, 10)
+            };
+            var tblAi = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 2,
+                Margin = Padding.Empty,
+                Padding = Padding.Empty
+            };
+            tblAi.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tblAi.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tblAi.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+
+            _lblResultNg = new Label
+            {
+                Name = "lblResultNg",
+                AutoSize = true,
+                Anchor = AnchorStyles.Left,
+                Font = new Font("맑은 고딕", 14F, FontStyle.Bold, GraphicsUnit.Point, 129),
+                ForeColor = Color.Red,
+                Margin = new Padding(0, 0, 0, 4),
+                Text = "NG",
+                Visible = false
+            };
+            _pbAiResult = new NgResultPictureBox
+            {
+                BackColor = Color.Black,
+                BorderStyle = BorderStyle.None,
+                Dock = DockStyle.Fill,
+                SizeMode = PictureBoxSizeMode.Zoom,
+                Margin = Padding.Empty
+            };
+            tblAi.Controls.Add(_lblResultNg, 0, 0);
+            tblAi.Controls.Add(_pbAiResult, 0, 1);
+            _grpAiResult.Controls.Add(tblAi);
+            _splitRun.Panel2.Controls.Add(_grpAiResult);
+            Controls.Add(_splitRun);
+            _splitRun.Resize += (_, __) => ApplyRunButtonsImageSplitRatio();
+        }
+
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            ApplyRunButtonsImageSplitRatio();
+        }
+
+        private void ApplyRunButtonsImageSplitRatio()
+        {
+            if (_splitRun == null || _syncingRunSplit)
+                return;
+            int h = _splitRun.Height;
+            int sw = _splitRun.SplitterWidth;
+            if (h <= _splitRun.Panel1MinSize + _splitRun.Panel2MinSize + sw)
+                return;
+            int want = LayoutRunButtonsAreaHeight;
+            want = Math.Max(_splitRun.Panel1MinSize, want);
+            want = Math.Min(want, h - _splitRun.Panel2MinSize - sw);
+            if (want < 0 || want == _splitRun.SplitterDistance)
+                return;
+            _syncingRunSplit = true;
+            try
+            {
+                _splitRun.SplitterDistance = want;
+            }
+            finally
+            {
+                _syncingRunSplit = false;
+            }
+        }
+
+        /// <summary>AI 검사 결과 오버레이 이미지를 실행 열 하단에 표시합니다.</summary>
+        public void ShowAIInspectionOverlay(Bitmap resultImage, SaigeAI saigeAI, bool isDefect)
+        {
+            if (resultImage == null || _pbAiResult == null)
+                return;
+
+            Image prev = _pbAiResult.Image;
+            Bitmap pbBmp = isDefect
+                ? (saigeAI.ExtractDefectZoomPreview(resultImage) ?? (Bitmap)resultImage.Clone())
+                : (Bitmap)resultImage.Clone();
+            _pbAiResult.Image = pbBmp;
+            _pbAiResult.ShowNgOverlay = isDefect;
+            if (_lblResultNg != null)
+            {
+                _lblResultNg.ForeColor = Color.Red;
+                _lblResultNg.Visible = isDefect;
+            }
+            _pbAiResult.Invalidate();
+            prev?.Dispose();
+        }
+
+        public void ClearAIInspectionOverlay()
+        {
+            if (_pbAiResult == null)
+                return;
+            Image prev = _pbAiResult.Image;
+            _pbAiResult.Image = null;
+            _pbAiResult.ShowNgOverlay = false;
+            if (_lblResultNg != null)
+                _lblResultNg.Visible = false;
+            _pbAiResult.Invalidate();
+            prev?.Dispose();
         }
 
         private void btnGrab_Click(object sender, EventArgs e)
@@ -108,6 +246,9 @@ namespace MachineVision_PCB
 
         private void RunForm_Load(object sender, EventArgs e)
         {
+            if (!DesignMode)
+                UiTheme.ApplyTo(this);
+
             toolTip.SetToolTip(btnPrev, "이전 이미지");     // << 버튼
             toolTip.SetToolTip(btnNext, "다음 이미지");     // >> 버튼
             toolTip.SetToolTip(btnGrab, "이미지 촬상"); // 촬영 버튼

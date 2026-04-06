@@ -13,10 +13,9 @@ namespace MachineVision_PCB
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
-
         private void InitializeComponent()
         {
+            this.tblBottom = new System.Windows.Forms.TableLayoutPanel();
             this.grpModel = new System.Windows.Forms.GroupBox();
             this.btnLoadModel = new System.Windows.Forms.Button();
             this.btnSelectModel = new System.Windows.Forms.Button();
@@ -29,27 +28,39 @@ namespace MachineVision_PCB
             this.lblStatus = new System.Windows.Forms.Label();
             this.btnClear = new System.Windows.Forms.Button();
             this.btnInspect = new System.Windows.Forms.Button();
-            this.grpResult = new System.Windows.Forms.GroupBox();
-            this.lblResultNg = new System.Windows.Forms.Label();
-            this.pbResult = new MachineVision_PCB.UIControl.NgResultPictureBox();
+            this.tblBottom.SuspendLayout();
             this.grpModel.SuspendLayout();
             this.grpInspect.SuspendLayout();
-            this.grpResult.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pbResult)).BeginInit();
             this.SuspendLayout();
+            //
+            // tblBottom
+            //
+            this.tblBottom.ColumnCount = 2;
+            this.tblBottom.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75F));
+            this.tblBottom.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tblBottom.Controls.Add(this.grpModel, 0, 0);
+            this.tblBottom.Controls.Add(this.grpInspect, 1, 0);
+            this.tblBottom.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tblBottom.Location = new System.Drawing.Point(0, 0);
+            this.tblBottom.Name = "tblBottom";
+            this.tblBottom.Padding = new System.Windows.Forms.Padding(6, 4, 6, 6);
+            this.tblBottom.RowCount = 1;
+            this.tblBottom.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tblBottom.Size = new System.Drawing.Size(1184, 200);
+            this.tblBottom.TabIndex = 0;
             //
             // grpModel
             //
-            this.grpModel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.grpModel.Controls.Add(this.btnLoadModel);
             this.grpModel.Controls.Add(this.btnSelectModel);
             this.grpModel.Controls.Add(this.txtModelPath);
             this.grpModel.Controls.Add(this.lblModelPath);
             this.grpModel.Controls.Add(this.cbEngineType);
             this.grpModel.Controls.Add(this.lblEngineType);
-            this.grpModel.Location = new System.Drawing.Point(6, 6);
+            this.grpModel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grpModel.Location = new System.Drawing.Point(9, 4);
             this.grpModel.Name = "grpModel";
-            this.grpModel.Size = new System.Drawing.Size(268, 175);
+            this.grpModel.Size = new System.Drawing.Size(721, 190);
             this.grpModel.TabIndex = 0;
             this.grpModel.TabStop = false;
             this.grpModel.Text = "모델 설정";
@@ -70,7 +81,7 @@ namespace MachineVision_PCB
             this.cbEngineType.FormattingEnabled = true;
             this.cbEngineType.Location = new System.Drawing.Point(8, 38);
             this.cbEngineType.Name = "cbEngineType";
-            this.cbEngineType.Size = new System.Drawing.Size(250, 20);
+            this.cbEngineType.Size = new System.Drawing.Size(120, 20);
             this.cbEngineType.TabIndex = 1;
             this.cbEngineType.SelectedIndexChanged += new System.EventHandler(this.cbEngineType_SelectedIndexChanged);
             //
@@ -89,7 +100,7 @@ namespace MachineVision_PCB
             this.txtModelPath.Location = new System.Drawing.Point(8, 84);
             this.txtModelPath.Name = "txtModelPath";
             this.txtModelPath.ReadOnly = true;
-            this.txtModelPath.Size = new System.Drawing.Size(250, 21);
+            this.txtModelPath.Size = new System.Drawing.Size(120, 21);
             this.txtModelPath.TabIndex = 3;
             //
             // btnSelectModel
@@ -114,14 +125,14 @@ namespace MachineVision_PCB
             //
             // grpInspect
             //
-            this.grpInspect.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.grpInspect.Controls.Add(this.lblStatusValue);
             this.grpInspect.Controls.Add(this.lblStatus);
             this.grpInspect.Controls.Add(this.btnClear);
             this.grpInspect.Controls.Add(this.btnInspect);
-            this.grpInspect.Location = new System.Drawing.Point(6, 188);
+            this.grpInspect.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grpInspect.Location = new System.Drawing.Point(736, 4);
             this.grpInspect.Name = "grpInspect";
-            this.grpInspect.Size = new System.Drawing.Size(268, 90);
+            this.grpInspect.Size = new System.Drawing.Size(442, 190);
             this.grpInspect.TabIndex = 1;
             this.grpInspect.TabStop = false;
             this.grpInspect.Text = "검사 실행";
@@ -130,7 +141,7 @@ namespace MachineVision_PCB
             //
             this.btnInspect.Location = new System.Drawing.Point(8, 22);
             this.btnInspect.Name = "btnInspect";
-            this.btnInspect.Size = new System.Drawing.Size(110, 30);
+            this.btnInspect.Size = new System.Drawing.Size(120, 32);
             this.btnInspect.TabIndex = 0;
             this.btnInspect.Text = "AI 검사 실행";
             this.btnInspect.UseVisualStyleBackColor = true;
@@ -138,9 +149,9 @@ namespace MachineVision_PCB
             //
             // btnClear
             //
-            this.btnClear.Location = new System.Drawing.Point(124, 22);
+            this.btnClear.Location = new System.Drawing.Point(136, 22);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(90, 30);
+            this.btnClear.Size = new System.Drawing.Size(100, 32);
             this.btnClear.TabIndex = 1;
             this.btnClear.Text = "결과 초기화";
             this.btnClear.UseVisualStyleBackColor = true;
@@ -149,7 +160,7 @@ namespace MachineVision_PCB
             // lblStatus
             //
             this.lblStatus.AutoSize = true;
-            this.lblStatus.Location = new System.Drawing.Point(8, 62);
+            this.lblStatus.Location = new System.Drawing.Point(8, 72);
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(30, 12);
             this.lblStatus.TabIndex = 2;
@@ -158,69 +169,29 @@ namespace MachineVision_PCB
             // lblStatusValue
             //
             this.lblStatusValue.AutoSize = true;
-            this.lblStatusValue.Location = new System.Drawing.Point(44, 62);
+            this.lblStatusValue.Location = new System.Drawing.Point(44, 72);
             this.lblStatusValue.Name = "lblStatusValue";
             this.lblStatusValue.Size = new System.Drawing.Size(24, 12);
             this.lblStatusValue.TabIndex = 3;
             this.lblStatusValue.Text = "대기";
-            // 
-            // grpResult
-            // 
-            this.grpResult.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
-            this.grpResult.Controls.Add(this.pbResult);
-            this.grpResult.Controls.Add(this.lblResultNg);
-            this.grpResult.Location = new System.Drawing.Point(6, 285);
-            this.grpResult.Name = "grpResult";
-            this.grpResult.Size = new System.Drawing.Size(268, 379);
-            this.grpResult.TabIndex = 2;
-            this.grpResult.TabStop = false;
-            this.grpResult.Text = "결과 이미지";
-            // 
-            // lblResultNg
-            // 
-            this.lblResultNg.AutoSize = true;
-            this.lblResultNg.Font = new System.Drawing.Font("맑은 고딕", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lblResultNg.ForeColor = System.Drawing.Color.Red;
-            this.lblResultNg.Location = new System.Drawing.Point(8, 20);
-            this.lblResultNg.Name = "lblResultNg";
-            this.lblResultNg.Size = new System.Drawing.Size(42, 25);
-            this.lblResultNg.TabIndex = 1;
-            this.lblResultNg.Text = "NG";
-            this.lblResultNg.Visible = false;
-            // 
-            // pbResult
-            // 
-            this.pbResult.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
-            this.pbResult.BackColor = System.Drawing.Color.Black;
-            this.pbResult.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pbResult.Location = new System.Drawing.Point(8, 48);
-            this.pbResult.Name = "pbResult";
-            this.pbResult.Size = new System.Drawing.Size(250, 321);
-            this.pbResult.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pbResult.TabIndex = 0;
-            this.pbResult.TabStop = false;
-            // 
+            //
             // AIForm
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(280, 670);
-            this.Controls.Add(this.grpResult);
-            this.Controls.Add(this.grpInspect);
-            this.Controls.Add(this.grpModel);
+            this.ClientSize = new System.Drawing.Size(1184, 200);
+            this.Controls.Add(this.tblBottom);
             this.Name = "AIForm";
             this.Text = "AI 검사";
+            this.tblBottom.ResumeLayout(false);
             this.grpModel.ResumeLayout(false);
             this.grpModel.PerformLayout();
             this.grpInspect.ResumeLayout(false);
             this.grpInspect.PerformLayout();
-            this.grpResult.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pbResult)).EndInit();
             this.ResumeLayout(false);
         }
 
-        #endregion
-
+        private System.Windows.Forms.TableLayoutPanel tblBottom;
         private System.Windows.Forms.GroupBox grpModel;
         private System.Windows.Forms.Label lblEngineType;
         private System.Windows.Forms.ComboBox cbEngineType;
@@ -233,8 +204,5 @@ namespace MachineVision_PCB
         private System.Windows.Forms.Button btnClear;
         private System.Windows.Forms.Label lblStatus;
         private System.Windows.Forms.Label lblStatusValue;
-        private System.Windows.Forms.GroupBox grpResult;
-        private System.Windows.Forms.Label lblResultNg;
-        private MachineVision_PCB.UIControl.NgResultPictureBox pbResult;
     }
 }
