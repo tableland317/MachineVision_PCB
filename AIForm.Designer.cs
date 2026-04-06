@@ -30,6 +30,7 @@ namespace MachineVision_PCB
             this.btnClear = new System.Windows.Forms.Button();
             this.btnInspect = new System.Windows.Forms.Button();
             this.grpResult = new System.Windows.Forms.GroupBox();
+            this.lblResultNg = new System.Windows.Forms.Label();
             this.pbResult = new MachineVision_PCB.UIControl.NgResultPictureBox();
             this.grpModel.SuspendLayout();
             this.grpInspect.SuspendLayout();
@@ -167,6 +168,7 @@ namespace MachineVision_PCB
             // 
             this.grpResult.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.grpResult.Controls.Add(this.pbResult);
+            this.grpResult.Controls.Add(this.lblResultNg);
             this.grpResult.Location = new System.Drawing.Point(6, 285);
             this.grpResult.Name = "grpResult";
             this.grpResult.Size = new System.Drawing.Size(268, 379);
@@ -174,14 +176,26 @@ namespace MachineVision_PCB
             this.grpResult.TabStop = false;
             this.grpResult.Text = "결과 이미지";
             // 
+            // lblResultNg
+            // 
+            this.lblResultNg.AutoSize = true;
+            this.lblResultNg.Font = new System.Drawing.Font("맑은 고딕", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.lblResultNg.ForeColor = System.Drawing.Color.Red;
+            this.lblResultNg.Location = new System.Drawing.Point(8, 20);
+            this.lblResultNg.Name = "lblResultNg";
+            this.lblResultNg.Size = new System.Drawing.Size(42, 25);
+            this.lblResultNg.TabIndex = 1;
+            this.lblResultNg.Text = "NG";
+            this.lblResultNg.Visible = false;
+            // 
             // pbResult
             // 
             this.pbResult.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.pbResult.BackColor = System.Drawing.Color.Black;
             this.pbResult.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pbResult.Location = new System.Drawing.Point(8, 18);
+            this.pbResult.Location = new System.Drawing.Point(8, 48);
             this.pbResult.Name = "pbResult";
-            this.pbResult.Size = new System.Drawing.Size(250, 351);
+            this.pbResult.Size = new System.Drawing.Size(250, 321);
             this.pbResult.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbResult.TabIndex = 0;
             this.pbResult.TabStop = false;
@@ -220,6 +234,7 @@ namespace MachineVision_PCB
         private System.Windows.Forms.Label lblStatus;
         private System.Windows.Forms.Label lblStatusValue;
         private System.Windows.Forms.GroupBox grpResult;
+        private System.Windows.Forms.Label lblResultNg;
         private MachineVision_PCB.UIControl.NgResultPictureBox pbResult;
     }
 }

@@ -54,8 +54,8 @@ namespace MachineVision_PCB
 
         Bitmap _inspImage = null;
 
-        /// <summary>NG 박스 외곽선 — 모델 클래스 색보다 진한 고대비 블루.</summary>
-        private static readonly Color AiDefectBoxOutline = Color.FromArgb(255, 0, 45, 165);
+        /// <summary>NG 하이라이트 주변 바운딩 사각형 (빨간색).</summary>
+        private static readonly Color AiNgBoundingBoxColor = Color.Red;
 
         /// <summary>스크래치 등 밝은 픽셀에 씌우는 강조색.</summary>
         private static readonly Color ScratchHighlightColor = Color.FromArgb(255, 0, 220, 90);
@@ -64,6 +64,9 @@ namespace MachineVision_PCB
         private const int ScratchHighlightLuminanceThreshold = 188;
 
         private const float AiDefectBoxPenWidth = 4f;
+
+        /// <summary>NG 빨간 바운딩 박스를 바운딩보다 약간 크게 그릴 때 좌우·상하 여백(픽셀).</summary>
+        private const int AiNgBoundingBoxPaddingPx = 8;
 
         public SaigeAI()
         {
@@ -335,6 +338,10 @@ namespace MachineVision_PCB
             if (segmentedObjects == null)
                 return;
 
+            var imgRect = new Rectangle(0, 0, bmp.Width, bmp.Height);
+            bool haveUnion = false;
+            Rectangle ngUnion = Rectangle.Empty;
+
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -360,12 +367,43 @@ namespace MachineVision_PCB
                             outlinePen.LineJoin = LineJoin.Round;
                             g.DrawPath(outlinePen, gp);
                         }
+
+                        RectangleF bf = gp.GetBounds();
+                        if (bf.Width >= 0.5f && bf.Height >= 0.5f)
+                        {
+                            Rectangle br = Rectangle.FromLTRB(
+                                (int)Math.Floor(bf.Left),
+                                (int)Math.Floor(bf.Top),
+                                (int)Math.Ceiling(bf.Right),
+                                (int)Math.Ceiling(bf.Bottom));
+                            br.Inflate(AiNgBoundingBoxPaddingPx, AiNgBoundingBoxPaddingPx);
+                            br.Intersect(imgRect);
+                            if (br.Width >= 1 && br.Height >= 1)
+                            {
+                                if (!haveUnion)
+                                {
+                                    ngUnion = br;
+                                    haveUnion = true;
+                                }
+                                else
+                                    ngUnion = Rectangle.Union(ngUnion, br);
+                            }
+                        }
+                    }
+                }
+
+                if (haveUnion)
+                {
+                    using (Pen bboxPen = new Pen(AiNgBoundingBoxColor, AiDefectBoxPenWidth))
+                    {
+                        bboxPen.LineJoin = LineJoin.Round;
+                        g.DrawRectangle(bboxPen, ngUnion);
                     }
                 }
             }
         }
 
-        // Detection: 박스 내부 밝은 픽셀을 초록 강조 후 진한 블루 사각형.
+        // Detection: 박스 내부 밝은 픽셀 강조 후 빨간 바운딩 사각형.
         private void DrawDetectionResult(DetectionResult result, Bitmap bmp)
         {
             if (result?.DetectedObjects == null)
@@ -382,20 +420,50 @@ namespace MachineVision_PCB
                 HighlightBrightScratchPixels(bmp, region, null);
             }
 
-            using (Graphics g = Graphics.FromImage(bmp))
+            var imgRect = new Rectangle(0, 0, bmp.Width, bmp.Height);
+            int iw = imgRect.Width;
+            int ih = imgRect.Height;
+            float pad = AiNgBoundingBoxPaddingPx;
+            bool haveUnion = false;
+            Rectangle ngUnion = Rectangle.Empty;
+
+            foreach (var prediction in result.DetectedObjects)
             {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                using (Pen pen = new Pen(AiDefectBoxOutline, AiDefectBoxPenWidth))
+                var bb = prediction.BoundingBox;
+                float fx = (float)bb.X;
+                float fy = (float)bb.Y;
+                float fw = Math.Max(1f, (float)bb.Width);
+                float fh = Math.Max(1f, (float)bb.Height);
+                float left = Math.Max(0f, fx - pad);
+                float top = Math.Max(0f, fy - pad);
+                float right = Math.Min(iw, fx + fw + pad);
+                float bottom = Math.Min(ih, fy + fh + pad);
+                var br = Rectangle.FromLTRB(
+                    (int)Math.Floor(left),
+                    (int)Math.Floor(top),
+                    (int)Math.Ceiling(right),
+                    (int)Math.Ceiling(bottom));
+                br.Intersect(imgRect);
+                if (br.Width < 1 || br.Height < 1)
+                    continue;
+                if (!haveUnion)
                 {
-                    pen.LineJoin = LineJoin.Round;
-                    foreach (var prediction in result.DetectedObjects)
+                    ngUnion = br;
+                    haveUnion = true;
+                }
+                else
+                    ngUnion = Rectangle.Union(ngUnion, br);
+            }
+
+            if (haveUnion)
+            {
+                using (Graphics g = Graphics.FromImage(bmp))
+                {
+                    g.SmoothingMode = SmoothingMode.AntiAlias;
+                    using (Pen pen = new Pen(AiNgBoundingBoxColor, AiDefectBoxPenWidth))
                     {
-                        var bb = prediction.BoundingBox;
-                        float fx = (float)bb.X;
-                        float fy = (float)bb.Y;
-                        float fw = Math.Max(1f, (float)bb.Width);
-                        float fh = Math.Max(1f, (float)bb.Height);
-                        g.DrawRectangle(pen, fx, fy, fw, fh);
+                        pen.LineJoin = LineJoin.Round;
+                        g.DrawRectangle(pen, ngUnion);
                     }
                 }
             }

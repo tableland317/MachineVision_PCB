@@ -171,12 +171,26 @@ namespace MachineVision_PCB
                 gb.Paint -= OnGroupBoxChromePaint;
                 gb.Paint += OnGroupBoxChromePaint;
             }
-            else if (c is Label || c is CheckBox || c is RadioButton)
+            else if (c is Label lab)
             {
-                c.BackColor = Color.Transparent;
-                c.ForeColor = TextPrimary;
-                if (c is CheckBox cb) { cb.FlatStyle = FlatStyle.Flat; cb.UseVisualStyleBackColor = false; }
-                if (c is RadioButton rb) { rb.FlatStyle = FlatStyle.Flat; rb.UseVisualStyleBackColor = false; }
+                lab.BackColor = Color.Transparent;
+                lab.ForeColor = string.Equals(lab.Name, "lblResultNg", StringComparison.Ordinal)
+                    ? Color.Red
+                    : TextPrimary;
+            }
+            else if (c is CheckBox cb)
+            {
+                cb.BackColor = Color.Transparent;
+                cb.ForeColor = TextPrimary;
+                cb.FlatStyle = FlatStyle.Flat;
+                cb.UseVisualStyleBackColor = false;
+            }
+            else if (c is RadioButton rb)
+            {
+                rb.BackColor = Color.Transparent;
+                rb.ForeColor = TextPrimary;
+                rb.FlatStyle = FlatStyle.Flat;
+                rb.UseVisualStyleBackColor = false;
             }
             else if (c is Button btn)
             {

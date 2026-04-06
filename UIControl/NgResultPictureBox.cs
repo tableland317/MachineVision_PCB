@@ -7,8 +7,7 @@ using System.Windows.Forms;
 namespace MachineVision_PCB.UIControl
 {
     /// <summary>
-    /// 결과 미리보기: NG일 때 Properties.Resources의 <c>NG_Image</c> 타일 배경(없으면 기본 NG 패턴) +
-    /// Zoom 영역 위쪽 여백에 빨간 <c>NG</c> 텍스트.
+    /// 결과 미리보기: NG일 때 Properties.Resources의 <c>NG_Image</c> 타일 배경(없으면 기본 NG 패턴).
     /// </summary>
     public class NgResultPictureBox : PictureBox
     {
@@ -17,7 +16,7 @@ namespace MachineVision_PCB.UIControl
         static Bitmap _cachedResourceTile;
         static bool _resourceLoadAttempted;
 
-        /// <summary>불량 결과 표시 시 배경 타일 + 상단 NG 라벨 사용.</summary>
+        /// <summary>불량 결과 표시 시 배경 타일 사용.</summary>
         public bool ShowNgOverlay { get; set; }
 
         public NgResultPictureBox()
@@ -50,19 +49,6 @@ namespace MachineVision_PCB.UIControl
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.DrawImage(Image, imageRect);
-
-            if (ShowNgOverlay && imageRect.Top > 4)
-            {
-                int bandH = imageRect.Top;
-                Rectangle labelBounds = new Rectangle(0, 0, Width, bandH);
-                float emSize = Math.Max(16f, Math.Min(28f, bandH * 0.55f));
-                using (Font f = new Font(FontFamily.GenericSansSerif, emSize, FontStyle.Bold, GraphicsUnit.Pixel))
-                {
-                    TextRenderer.DrawText(g, "NG", f, labelBounds, Color.FromArgb(255, 220, 40, 40),
-                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter |
-                        TextFormatFlags.NoPadding | TextFormatFlags.NoClipping);
-                }
-            }
         }
 
         static Rectangle GetZoomRectangle(Size box, Size image)

@@ -193,11 +193,15 @@ namespace MachineVision_PCB
                     : (Bitmap)resultImage.Clone();
                 pbResult.Image = pbBmp;
                 pbResult.ShowNgOverlay = isDefect;
+                lblResultNg.ForeColor = Color.Red;
+                lblResultNg.Visible = isDefect;
                 pbResult.Invalidate();
                 prev?.Dispose();
 
                 Global.Inst.InspStage.UpdateDisplay(resultImage);
             }
+            else
+                lblResultNg.Visible = false;
 
             foreach (var _result in aiResults)
             {
@@ -235,6 +239,7 @@ namespace MachineVision_PCB
             Image prev = pbResult.Image;
             pbResult.Image = null;
             pbResult.ShowNgOverlay = false;
+            lblResultNg.Visible = false;
             pbResult.Invalidate();
             prev?.Dispose();
 
