@@ -433,40 +433,40 @@ namespace MachineVision_PCB.UIControl
             }
 
             //#13_INSP_RESULT#5 검사 양불판정 갯수 화면에 표시
-            if (_inspectResultCount.Total > 0)
-            {
-                string resultText = $"Total: {_inspectResultCount.Total}\r\nOK: {_inspectResultCount.OK}\r\nNG: {_inspectResultCount.NG}";
+            //if (_inspectResultCount.Total > 0)
+            //{
+            //    string resultText = $"Total: {_inspectResultCount.Total}\r\nOK: {_inspectResultCount.OK}\r\nNG: {_inspectResultCount.NG}";
 
-                float fontSize = 20.0f;
-                Color resultColor = Color.FromArgb(255, 255, 255);
-                PointF textPos = new PointF(Width - 130, 10);
-                DrawText(g, resultText, textPos, fontSize, resultColor);
-            }
+            //    float fontSize = 20.0f;
+            //    Color resultColor = Color.FromArgb(255, 255, 255);
+            //    PointF textPos = new PointF(Width - 130, 10);
+            //    DrawText(g, resultText, textPos, fontSize, resultColor);
+            //}
 
             // 우측 하단에 현재 이미지 경로 표시
-            if (!string.IsNullOrEmpty(_imagePath))
-            {
-                float pathFontSize = 9.0f;
-                using (Font pathFont = new Font("Arial", pathFontSize, FontStyle.Regular))
-                {
-                    SizeF textSize = g.MeasureString(_imagePath, pathFont);
-                    float margin = 6.0f;
-                    PointF pathPos = new PointF(
-                        Width - textSize.Width - margin,
-                        Height - textSize.Height - margin);
+            //if (!string.IsNullOrEmpty(_imagePath))
+            //{
+            //    float pathFontSize = 9.0f;
+            //    using (Font pathFont = new Font("Arial", pathFontSize, FontStyle.Regular))
+            //    {
+            //        SizeF textSize = g.MeasureString(_imagePath, pathFont);
+            //        float margin = 6.0f;
+            //        PointF pathPos = new PointF(
+            //            Width - textSize.Width - margin - 100,
+            //            Height - textSize.Height - margin);
 
-                    // 배경 반투명 박스
-                    RectangleF bgRect = new RectangleF(
-                        pathPos.X - 2, pathPos.Y - 2,
-                        textSize.Width + 4, textSize.Height + 4);
-                    using (SolidBrush bgBrush = new SolidBrush(Color.FromArgb(140, 0, 0, 0)))
-                        g.FillRectangle(bgBrush, bgRect);
+            //        // 배경 반투명 박스
+            //        RectangleF bgRect = new RectangleF(
+            //            pathPos.X - 2, pathPos.Y - 2,
+            //            textSize.Width + 4, textSize.Height + 4);
+            //        using (SolidBrush bgBrush = new SolidBrush(Color.FromArgb(140, 0, 0, 0)))
+            //            g.FillRectangle(bgBrush, bgRect);
 
-                    // 텍스트
-                    using (SolidBrush textBrush = new SolidBrush(Color.White))
-                        g.DrawString(_imagePath, pathFont, textBrush, pathPos);
-                }
-            }
+            //        // 텍스트
+            //        using (SolidBrush textBrush = new SolidBrush(Color.White))
+            //            g.DrawString(_imagePath, pathFont, textBrush, pathPos);
+            //    }
+            //}
         }
         private void DrawRectInfo(Graphics g)
         {

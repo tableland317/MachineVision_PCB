@@ -88,7 +88,7 @@ namespace MachineVision_PCB
             // lblModelPath
             //
             this.lblModelPath.AutoSize = true;
-            this.lblModelPath.Location = new System.Drawing.Point(8, 68);
+            this.lblModelPath.Location = new System.Drawing.Point(4, 68);
             this.lblModelPath.Name = "lblModelPath";
             this.lblModelPath.Size = new System.Drawing.Size(52, 12);
             this.lblModelPath.TabIndex = 2;

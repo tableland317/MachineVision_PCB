@@ -224,8 +224,21 @@ namespace MachineVision_PCB
             }
         }
 
+        /// <summary>현재 이미지에 대해 AI 검사 1회 실행. isDefect에 불량 여부 반환.</summary>
+        public bool RunOneInspection(out bool isDefect)
+        {
+            isDefect = false;
+            return RunOneInspectionCore(ref isDefect);
+        }
+
         /// <summary>현재 이미지에 대해 AI 검사 1회 실행. 성공 시 true 반환.</summary>
         public bool RunOneInspection()
+        {
+            bool isDefect = false;
+            return RunOneInspectionCore(ref isDefect);
+        }
+
+        private bool RunOneInspectionCore(ref bool isDefect)
         {
             if (_saigeAI == null)
             {
@@ -248,7 +261,7 @@ namespace MachineVision_PCB
             Bitmap resultImage = _saigeAI.GetResultImage();
             string imagePath = Global.Inst.InspStage.CurModel?.InspectImagePath ?? "";
             var aiResults = _saigeAI.GetAIInspResults();
-            bool isDefect = aiResults.Any(r => r.IsDefect);
+            isDefect = aiResults.Any(r => r.IsDefect);
 
             RunForm runForm = MainForm.GetDockForm<RunForm>();
             if (resultImage != null)

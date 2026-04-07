@@ -575,10 +575,14 @@ namespace MachineVision_PCB.Core
             AIForm aiForm = MainForm.GetDockForm<AIForm>();
             if (aiForm == null) return;
 
+            bool isDefect = false;
             if (aiForm.InvokeRequired)
-                aiForm.Invoke(new Action(() => aiForm.RunOneInspection()));
+                aiForm.Invoke(new Action(() => aiForm.RunOneInspection(out isDefect)));
             else
-                aiForm.RunOneInspection();
+                aiForm.RunOneInspection(out isDefect);
+
+            // StartAutoRun()과 동일하게 WCF로 검사 결과 PLC에 반환
+            VisionSequence.Inst.VisionCommand(Vision2Mmi.InspDone, isDefect);
         }
 
         private void DisplayGrabImage(int bufferIndex)
@@ -1024,17 +1028,20 @@ namespace MachineVision_PCB.Core
                 return false;
             }
 
-            // LiveMode=true → _multiGrab_TransferCompleted의 Task.Delay()가 검사 주기
-            // _isInspectMode=false → ROI 기반 일반 검사 실행 안 함
-            // _isAIInspectMode=true → 프레임마다 SaigeAI 검사만 실행
-            LiveMode = true;
+            // ROI 검사 없이 SaigeAI 검사만 실행
+            // PLC(WCF)가 InspStart를 보낼 때마다 Grab → RunAIInspect() → InspDone 반환
+            LiveMode = false;
             UseCamera = SettingXml.Inst.CamType != CameraType.None ? true : false;
             _isInspectMode = false;
             _isAIInspectMode = true;
 
             SetWorkingState(WorkingState.INSPECT);
 
-            SLogger.Write("AI AutoRun 시작 (ROI 검사 없음, SaigeAI 전용)");
+            // WCF 시퀀스 시작 (StartAutoRun과 동일하게 PLC와 통신)
+            string modelName = Path.GetFileNameWithoutExtension(CurModel.ModelPath);
+            VisionSequence.Inst.StartAutoRun(modelName);
+
+            SLogger.Write("AI AutoRun 시작 (ROI 검사 없음, SaigeAI + WCF)");
             return true;
         }
 
