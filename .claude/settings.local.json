@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ls -la *.csproj)"
+      "Bash(ls -la *.csproj)",
+      "Bash(Test-Path \"D:\\\\VisualStudio\\\\MachineVision_PCB\\\\Property\\\\AIProp.cs\")",
+      "Bash(New-Item -Path \"D:\\\\VisualStudio\\\\MachineVision_PCB\\\\Property\\\\AIProp.cs\" -ItemType File -Force)",
+      "Bash(Out-Null)"
     ]
   }
 }

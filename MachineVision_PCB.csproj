@@ -163,6 +163,12 @@
     <Compile Include="Property\AIModuleProp.Designer.cs">
       <DependentUpon>AIModuleProp.cs</DependentUpon>
     </Compile>
+    <Compile Include="Property\AIProp.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Property\AIProp.Designer.cs">
+      <DependentUpon>AIProp.cs</DependentUpon>
+    </Compile>
     <Compile Include="Property\BinaryProp.cs">
       <SubType>UserControl</SubType>
     </Compile>

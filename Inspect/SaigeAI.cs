@@ -332,11 +332,40 @@ namespace MachineVision_PCB
             }
         }
 
+        /// <summary>Area 필터 설정을 기준으로 SegmentedObject를 걸러냅니다.</summary>
+        private static SegmentedObject[] ApplyAreaFilter(SegmentedObject[] objects)
+        {
+            if (objects == null) return null;
+            if (!Setting.SettingXml.Inst.AI_UseAreaFilter) return objects;
+
+            int minArea = Setting.SettingXml.Inst.AI_MinDefectArea;
+            int maxArea = Setting.SettingXml.Inst.AI_MaxDefectArea;
+            return objects.Where(o => o.Area >= minArea && o.Area <= maxArea).ToArray();
+        }
+
+        /// <summary>Area 필터 설정을 기준으로 DetectedObject를 걸러냅니다.</summary>
+        private static DetectedObject[] ApplyAreaFilterDet(DetectedObject[] objects)
+        {
+            if (objects == null) return null;
+            if (!Setting.SettingXml.Inst.AI_UseAreaFilter) return objects;
+
+            int minArea = Setting.SettingXml.Inst.AI_MinDefectArea;
+            int maxArea = Setting.SettingXml.Inst.AI_MaxDefectArea;
+            return objects.Where(o =>
+            {
+                double area = o.BoundingBox.Width * o.BoundingBox.Height;
+                return area >= minArea && area <= maxArea;
+            }).ToArray();
+        }
+
         // IAD / Segmentation: 클래스명 기반 색상으로 폴리곤 내부 반투명 채우기 + 뚜렷한 외곽선.
         private void DrawSegResult(SegmentedObject[] segmentedObjects, Bitmap bmp)
         {
             if (segmentedObjects == null)
                 return;
+
+            // Area 필터 후처리 — AI 엔진 재실행 없이 크기 기준으로 걸러냄
+            segmentedObjects = ApplyAreaFilter(segmentedObjects);
 
             var imgRect = new Rectangle(0, 0, bmp.Width, bmp.Height);
             bool haveUnion = false;
@@ -409,7 +438,10 @@ namespace MachineVision_PCB
             if (result?.DetectedObjects == null)
                 return;
 
-            foreach (var prediction in result.DetectedObjects)
+            // Area 필터 후처리 — AI 엔진 재실행 없이 크기 기준으로 걸러냄
+            var detectedObjects = ApplyAreaFilterDet(result.DetectedObjects);
+
+            foreach (var prediction in detectedObjects)
             {
                 var bb = prediction.BoundingBox;
                 int x = (int)Math.Floor(bb.X);
@@ -427,7 +459,7 @@ namespace MachineVision_PCB
             bool haveUnion = false;
             Rectangle ngUnion = Rectangle.Empty;
 
-            foreach (var prediction in result.DetectedObjects)
+            foreach (var prediction in detectedObjects)
             {
                 var bb = prediction.BoundingBox;
                 float fx = (float)bb.X;
@@ -676,8 +708,8 @@ namespace MachineVision_PCB
                     break;
                 case AIEngineType.Detection:
                     if (_detResult == null) return results;
-                    // Detection은 DetectedObject 기준으로 처리
-                    var detGroups = _detResult.DetectedObjects
+                    // Detection은 DetectedObject 기준으로 처리 (Area 필터 적용)
+                    var detGroups = ApplyAreaFilterDet(_detResult.DetectedObjects)
                         .GroupBy(o => o.ClassInfo.Name);
                     foreach (var group in detGroups)
                     {
@@ -702,7 +734,8 @@ namespace MachineVision_PCB
 
             if (segObjects == null) return results;
 
-            // IAD / Segmentation 공통 처리 (클래스명 기준 그룹핑)
+            // IAD / Segmentation 공통 처리 (Area 필터 적용 후 클래스명 기준 그룹핑)
+            segObjects = ApplyAreaFilter(segObjects);
             var groups = segObjects.GroupBy(o => o.ClassInfo.Name);
             foreach (var group in groups)
             {

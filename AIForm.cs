@@ -160,6 +160,9 @@ namespace MachineVision_PCB
                 lblStatusValue.Text = "모델 로딩 완료";
                 lblStatusValue.ForeColor = Color.Green;
                 AppendLog($"모델 로딩 완료: {System.IO.Path.GetFileName(_modelPath)}");
+
+                // PropertiesForm의 AI 필터 탭 값을 현재 설정과 동기화
+                MainForm.GetDockForm<PropertiesForm>()?.SyncAIProp();
             }
             catch (Exception ex)
             {
@@ -171,6 +174,9 @@ namespace MachineVision_PCB
 
         private async void btnInspect_Click(object sender, EventArgs e)
         {
+            // AI 필터 탭을 PropertiesForm에 표시
+            MainForm.GetDockForm<PropertiesForm>()?.ShowAIPropTab();
+
             bool cycleMode = Setting.SettingXml.Inst.CycleMode;
 
             if (Setting.SettingXml.Inst.CamType == Grab.CameraType.None)
@@ -203,7 +209,7 @@ namespace MachineVision_PCB
                         if (!RunOneInspection())
                             break;
 
-                        await Task.Delay(1000, token);
+                        await Task.Delay(5000, token);
 
                         if (!Global.Inst.InspStage.MoveNextImage())
                             break;

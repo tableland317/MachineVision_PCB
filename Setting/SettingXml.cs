@@ -112,5 +112,14 @@ namespace MachineVision_PCB.Setting
         //#19_VISION_SEQUENCE#1 통신타입, IP 설정
         public CommunicatorType CommType { get; set; }
         public string CommIP { get; set; } = "127.0.0.1";
+
+        // AI 불량 크기 필터 (Area 기준, 단위: pixel²)
+        // AI 엔진을 다시 돌리지 않고 결과 후처리에서 필터링
+        public bool AI_UseAreaFilter { get; set; } = false;
+        public int  AI_MinDefectArea { get; set; } = 0;
+        public int  AI_MaxDefectArea { get; set; } = 100000;
+
+        // AI AutoRun 사이클 딜레이 (ms) — 한 검사가 끝난 뒤 다음 Grab까지 대기 시간
+        public int AI_CycleDelayMs { get; set; } = 2000;
     }
 }

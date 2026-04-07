@@ -554,20 +554,26 @@ namespace MachineVision_PCB.Core
 
             DisplayGrabImage(bufferIndex);
 
-            //#8_LIVE#2 LIVE 모드일때, Grab을 계속 실행하여, 반복되도록 구현
-            //이 함수는 await를 사용하여 비동기적으로 실행되어, 함수를 async로 선언해야 합니다.
-            if (LiveMode)
-            {
-                SLogger.Write("Grab");
-                await Task.Delay(1000);  // 비동기 대기
-                _grabManager.Grab(bufferIndex, true);  // 다음 촬영 시작
-            }
-
+            // 검사를 먼저 끝낸 뒤 딜레이 → 다음 Grab 순서로 실행
+            // (LiveMode 딜레이 전에 실행해야 다음 촬영과 겹치지 않음)
             if (_isInspectMode)
                 RunInspect();
 
             if (_isAIInspectMode)
                 RunAIInspect();
+
+            //#8_LIVE#2 LIVE 모드일때, Grab을 계속 실행하여, 반복되도록 구현
+            //이 함수는 await를 사용하여 비동기적으로 실행되어, 함수를 async로 선언해야 합니다.
+            if (LiveMode)
+            {
+                // AI AutoRun 사이클 딜레이 (설정값), 일반 Live는 고정 200ms
+                int delayMs = _isAIInspectMode
+                    ? SettingXml.Inst.AI_CycleDelayMs
+                    : 200;
+                SLogger.Write($"Live 대기 {delayMs}ms 후 다음 Grab");
+                await Task.Delay(delayMs);
+                _grabManager.Grab(bufferIndex, true);  // 다음 촬영 시작
+            }
         }
 
         private void RunAIInspect()
@@ -1029,19 +1035,18 @@ namespace MachineVision_PCB.Core
             }
 
             // ROI 검사 없이 SaigeAI 검사만 실행
-            // PLC(WCF)가 InspStart를 보낼 때마다 Grab → RunAIInspect() → InspDone 반환
-            LiveMode = false;
+            // LiveMode = true → 소프트웨어가 사이클 딜레이(AI_CycleDelayMs)를 제어하며 자동 반복
+            LiveMode = true;
             UseCamera = SettingXml.Inst.CamType != CameraType.None ? true : false;
             _isInspectMode = false;
             _isAIInspectMode = true;
 
             SetWorkingState(WorkingState.INSPECT);
 
-            // WCF 시퀀스 시작 (StartAutoRun과 동일하게 PLC와 통신)
-            string modelName = Path.GetFileNameWithoutExtension(CurModel.ModelPath);
-            VisionSequence.Inst.StartAutoRun(modelName);
+            // 첫 번째 Grab 시작 (이후는 _multiGrab_TransferCompleted에서 자동 반복)
+            Grab(SelBufferIndex);
 
-            SLogger.Write("AI AutoRun 시작 (ROI 검사 없음, SaigeAI + WCF)");
+            SLogger.Write($"AI AutoRun 시작 (사이클 딜레이: {SettingXml.Inst.AI_CycleDelayMs}ms)");
             return true;
         }
 

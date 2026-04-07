@@ -23,9 +23,45 @@ namespace MachineVision_PCB
         //#3_CAMERAVIEW_PROPERTY#4 속성탭을 관리하기 위한 딕셔너리
         Dictionary<string, TabPage> _allTabs = new Dictionary<string, TabPage>();
 
+        // AI 필터 탭 (항상 고정 표시)
+        private Property.AIProp _aiProp;
+
         public PropertiesForm()
         {
             InitializeComponent();
+            AddAIPropTab();
+        }
+
+        /// <summary>AI 결과 필터 탭을 tabPropControl에 영구 탭으로 추가합니다.</summary>
+        private void AddAIPropTab()
+        {
+            _aiProp = new Property.AIProp { Dock = DockStyle.Fill };
+            _aiProp.SetProperty();
+
+            var tab = new TabPage("AI 필터") { Dock = DockStyle.Fill };
+            tab.Controls.Add(_aiProp);
+
+            tabPropControl.TabPages.Add(tab);
+            UiTheme.ApplyTo(tab);
+        }
+
+        /// <summary>AI 필터 탭의 값을 현재 설정과 동기화합니다 (모델 로딩·설정 변경 후 호출).</summary>
+        public void SyncAIProp() => _aiProp?.SetProperty();
+
+        /// <summary>PropertiesForm을 활성화하고 AI 필터 탭을 선택합니다.</summary>
+        public void ShowAIPropTab()
+        {
+            foreach (TabPage tab in tabPropControl.TabPages)
+            {
+                if (tab.Text == "AI 필터")
+                {
+                    tabPropControl.SelectedTab = tab;
+                    break;
+                }
+            }
+            // 도킹 패널이 숨겨져 있을 경우 앞으로 꺼냄
+            Show();
+            Activate();
         }
 
         //#3_CAMERAVIEW_PROPERTY#6 속성탭이 있다면 그것을 반환하고, 없다면 생성

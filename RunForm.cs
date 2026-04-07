@@ -146,6 +146,26 @@ namespace MachineVision_PCB
             prev?.Dispose();
         }
 
+        /// <summary>
+        /// AI 엔진 재실행 없이 현재 필터 설정으로 결과 오버레이를 다시 그립니다.
+        /// AIProp의 RangeTrackbar 변경 시 호출됩니다.
+        /// </summary>
+        public void RefreshAIDisplay()
+        {
+            SaigeAI aiModule = Global.Inst.InspStage?.AIModule;
+            if (aiModule == null) return;
+
+            // GetResultImage()는 _inspImage에 현재 필터 설정으로 다시 렌더링
+            Bitmap resultImage = aiModule.GetResultImage();
+            if (resultImage == null) return;
+
+            var aiResults = aiModule.GetAIInspResults();
+            bool isDefect = aiResults.Any(r => r.IsDefect);
+
+            ShowAIInspectionOverlay(resultImage, aiModule, isDefect);
+            Global.Inst.InspStage.UpdateDisplay(resultImage);
+        }
+
         public void ClearAIInspectionOverlay()
         {
             if (_pbAiResult == null)
